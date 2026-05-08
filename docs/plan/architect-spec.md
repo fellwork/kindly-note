@@ -1008,7 +1008,7 @@ Plugin authors who want to support both ecosystems publish two entries: their ex
 | `highlightAll()` auto-init | `attachToDOM(hl, { selector? })` (`@kindly-note/browser`) |
 | `disableAutodetect: true` on lang def | `LanguageDefinition.disableAutodetect?: boolean` honored by `@kindly-note/auto-detect` |
 | `newInstance()` — isolated highlighter | `createHighlighter({...})` is the constructor. Each call is independent — no global singleton exists in v0. |
-| `subLanguage` | `Mode.subLanguage?: string \| string[]` — honored by engine; sub-language tokens are inserted via `Emitter.addSubLanguage(stream, name)` |
+| `subLanguage` | `Mode.subLanguage?: string \| string[]` — honored by engine; sub-language tokens are inserted via `Emitter.addSubLanguage(stream, language)` (matches the normative §5.2 signature). |
 | `supersetOf` field | `LanguageDefinition.supersetOf?: string` — used by `@kindly-note/auto-detect` for tie-breaking |
 | Scope-to-CSS-class tiered mapping | Preserved verbatim by `htmlEmitter`. `"title.class.inherited"` → `"kn-title class_ inherited__"` (§5.3) |
 | `hljs.regex` utilities | `import { regex } from '@kindly-note/core'` — same names: `concat`, `lookahead`, `either`, `optional`, `anyNumberOfTimes` |
