@@ -163,7 +163,9 @@ describe('@kindly-note/themes-default — package shape', () => {
 
   it('package name + version', () => {
     expect(pkg.name).toBe('@kindly-note/themes-default');
-    expect(pkg.version).toBe('0.0.1');
+    // Assert semver shape, not a hardcoded value (release rehearsal lesson:
+    // hardcoded version strings break on every Changesets bump).
+    expect(pkg.version).toMatch(/^\d+\.\d+\.\d+/);
   });
 
   it('exports map contains all four CSS subpaths + tokens.json', () => {
@@ -196,7 +198,7 @@ describe('@kindly-note/themes-default — tokens.json', () => {
   };
 
   it('has version + three themes + fonts', () => {
-    expect(tokens.version).toBe('0.0.1');
+    expect(tokens.version).toMatch(/^\d+\.\d+\.\d+/);
     expect(Object.keys(tokens.themes).sort()).toEqual(['dark', 'high-contrast', 'light']);
     expect(typeof tokens.fonts.mono).toBe('string');
   });
