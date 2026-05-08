@@ -1,0 +1,37 @@
+{
+  "name": "@kindly-note/core",
+  "version": "0.0.1",
+  "description": "Engine, compiler, parser loop, registry, plugin pipeline, and types for kindly-note. Zero language data, zero DOM, zero Node built-ins.",
+  "license": "BSD-3-Clause",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./regex": {
+      "types": "./dist/regex.d.ts",
+      "import": "./dist/regex.js"
+    },
+    "./errors": {
+      "types": "./dist/errors.d.ts",
+      "import": "./dist/errors.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "sideEffects": false,
+  "files": ["dist", "src"],
+  "scripts": {
+    "build": "rolldown -c",
+    "test": "vitest run",
+    "typecheck": "tsc -b"
+  },
+  "devDependencies": {
+    "rolldown": "1.0.0",
+    "rolldown-plugin-dts": "0.16.0",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  }
+}
