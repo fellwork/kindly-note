@@ -7,10 +7,9 @@
 
 ## Current pointer
 
-- **Phase:** 10 — **🟢 V0 release rehearsal complete (publish-ready).** 13 packages at v0.1.0; per-package READMEs (~1,545 lines total); root README polished; CHANGELOGs generated; `npm publish --dry-run` clean for all 13 packages (~300 KB total surface). Main at `e864f7a`. **480+ tests across 13 packages, lint+typecheck clean.**
-- **Active artifacts:** 12 build manifests + 13 per-package READMEs + 13 per-package CHANGELOGs.
-- **Architectural status:** Spec §0 shifts #1-#5 all validated. Spec §8.2 keystone validated. Spec §13 (markdown rendering) still v1+ scope, not implemented.
-- **Next (user decision):** verdaccio smoke test before publish, OR skip-and-publish, OR pivot to v1 markdown ring / long-tail ports.
+- **Phase:** 11 — **🟢 v0.1.0 LIVE ON NPM.** All 14 packages published to https://registry.npmjs.org/ under the `@kindly-note` org. End-to-end smoke test passed: `npm install` + `import` + `highlight()` works from a fresh sandbox. **13 build manifests, 14 READMEs, 14 CHANGELOGs, ~525 tests, lint+typecheck clean.** Main at `1889a0f` (or later, post-publish state docs).
+- **Architectural status:** Spec §0 shifts #1-#5 all validated and IN PRODUCTION. Spec §8.2 keystone validated and IN PRODUCTION. Spec §13 (markdown rendering) — first piece (`lang-markdown`) shipped; emitters-markdown + render-markdown still pending (cohort 7b territory).
+- **Next (user decision):** dispatch cohort 7b (emitters-markdown + render-markdown — security-critical; v0.2.0), pivot to long-tail language ports, or pause for community traction on v0.1.0.
 
 ## Locked-in scope decisions (round 0)
 
@@ -52,6 +51,10 @@
 | 9-merge | — | Team Lead | FF-merged feat/browser. **V0 surface complete: 13 packages, 495 tests, lint+typecheck clean.** Main at `e651378`. | 9 |
 | 10 | — | 13 parallel README subagents (`general-purpose`) | One subagent per package; each wrote `packages/<name>/README.md` (~80-180 lines) on its own `feat/readme-<name>` branch. All 13 returned DONE. Cherry-picked all 13 onto main (no conflicts; disjoint file scope). ~1,545 lines of READMEs total. | 10 |
 | 10-rehearsal | — | Team Lead | Polish + release rehearsal: rewrote root README; fixed `package.json` license templating bug (BSD-3-Clause → MIT) across all 13 packages; swept README license sections; ran `bun x changeset version` to consume 15 changesets (Changesets quirk: 3 packages bumped to 1.0.0 instead of 0.1.0 on `minor` from 0.0.x — manually corrected); fixed brittle test (`themes-default` had hardcoded version assertions; replaced with semver-shape regex); ran `npm publish --dry-run` for all 13 packages — total ~300 KB surface. All 480+ tests pass on the version-bumped main. | 10 |
+| 10-verdaccio | — | Team Lead | Installed verdaccio globally; ran full publish + sandbox install + import smoke test against local registry. **Caught a real bug**: published tarballs preserved `workspace:*` in dependencies (Changesets failed to rewrite). Fixed by changing source `package.json` to use `^0.1.0` directly; bun workspaces still resolve concrete ranges to local packages. Re-published to verdaccio + re-ran smoke test — `import { createHighlighter } from '@kindly-note/core'; ... highlight(JSON)` produced real `<span class="kn-attr">"a"</span>` output. v0.1.0 publish-validated. | 10 |
+| 11 | 2 | Builder C7a (`general-purpose`, worktree-isolated) | `feat/lang-markdown` (3 commits): `@kindly-note/lang-markdown` v0 CommonMark grammar with typed `MarkdownExtensionPoints` for downstream GFM. 30 new tests; 525/525 workspace total. Surfaced 3 matcher constraints (intra-rule backreferences broken under MultiRegex; sub-language dispatch is static; sub-language buffer must `excludeBegin/excludeEnd`). 5 open questions for cohort 7b. STATUS: DONE. | 11 |
+| 11-merge | — | Team Lead | Merged `feat/lang-markdown` (3-way merge with bun.lock conflict resolved by regenerate). Wrote `lang-markdown/CHANGELOG.md` manually + retired pending changeset so all 14 packages ship at 0.1.0 cohesively. | 11 |
+| 11-publish | — | Team Lead + user (npm login + OTP) | User reserved `@kindly-note` org on npm. `npm login --auth-type=web` succeeded as `srmcguirt`. First publish attempt failed: `EOTP` 2FA required for publish. Second attempt with `--otp=<code>` succeeded — all 14 packages published. **Real-npm smoke test passed**: `npm install @kindly-note/{core,lang-typescript,...}@0.1.0` + `node smoke.mjs` produced `language: 'TypeScript'`, `relevance: 2`, real `<span class="kn-keyword">interface</span>` output. **v0.1.0 is publicly consumable.** Note: `npm install` initially returned 404 due to client-side cache (registry CDN propagated correctly per direct API check); `npm cache clean --force` resolved. | 11 |
 
 ## Open obligations
 
@@ -72,10 +75,11 @@
 - [x] **Builder cohort 4 — keystone validated.** lang-javascript + lang-typescript merged. extendLanguage ref-substitution walker added to core. Workspace src-resolution config landed.
 - [x] Builder cohort 5 (4-way parallel) — `legacy-plugin-adapter` + `auto-detect` + `loader-{fetch,dynamic-import}` + `themes-default` shipped and merged
 - [x] Builder cohort 5e — `@kindly-note/browser` shipped and merged
-- [x] V0 release rehearsal: per-package READMEs (13 ✓), root README polish (✓), version bump 0.0.1→0.1.0 via Changesets (✓), `npm publish --dry-run` validation (✓ all 13), CHANGELOG.md generation (✓)
-- [ ] Optional: verdaccio publish smoke test (requires `npm i -g verdaccio` + auth setup)
+- [x] V0 release rehearsal: per-package READMEs (14 ✓ including lang-markdown), root README polish (✓), version bump (✓), CHANGELOG.md generation (✓), npm dry-runs (✓), verdaccio smoke test (✓ — caught the workspace:* bug)
+- [x] **V0.1.0 publish to real npm** — all 14 packages live at https://www.npmjs.com/package/@kindly-note/core etc. End-to-end smoke test passed.
 - [ ] Optional: tighten `files` field on packages (currently ships `dist + src`; many libs ship `dist` only; minor polish)
-- [ ] V0.1.0 publish to real npm (depends on user; requires `@kindly-note` scope ownership + `npm login`)
+- [ ] Builder cohort 7b — `@kindly-note/emitters-markdown` (semantic HTML emitter with security defaults per spec §13.1) + `@kindly-note/render-markdown` (top-level convenience). Ships as v0.2.0.
+- [ ] Push git tags + commits to a real remote (none configured; user creates GitHub remote when ready)
 - [ ] V1+ markdown ring: `lang-markdown`, `lang-markdown-gfm`, `emitters-markdown`, `emitters-mdast`, `render-markdown`, `integrations-{marked,remark}` (per round-3 user decision)
 - [ ] Promote `Highlighter.plugins` to a public read-only iterator (cohort-5e follow-up; needed for future cohorts that want introspection without duck-typed casts)
 - [ ] Long tail: ~190 language ports (mechanical, after v0 ships)
