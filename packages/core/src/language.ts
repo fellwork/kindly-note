@@ -199,32 +199,18 @@ export function extendLanguage<TExt>(
   parent: LanguageDefinition<TExt>,
   extensions: LanguageExtensions<TExt>,
 ): LanguageDefinition<unknown> {
-  // 1. Replace modes by label, then apply transformLabeledMode.
-  const replaceMap = new Map<string, Mode>();
-  for (const r of extensions.replaceModes ?? []) {
-    replaceMap.set(r.label, r.with);
-  }
-  const transformMap = new Map<string, (m: Mode) => Mode>();
-  for (const t of extensions.transformLabeledMode ?? []) {
-    transformMap.set(t.label, t.transform);
-  }
-
-  const replacedContains: Mode[] = parent.contains.map((m) => {
-    if (m.label !== undefined) {
-      const replacement = replaceMap.get(m.label);
-      if (replacement !== undefined) return replacement;
-      const transform = transformMap.get(m.label);
-      if (transform !== undefined) return transform(m);
-    }
-    return m;
-  });
-
-  // 2. Append new modes from addContains.
-  const newContains: readonly Mode[] = [...replacedContains, ...(extensions.addContains ?? [])];
-
-  // 3. Compose extensible — each point's transform takes the parent's frozen
-  //    value and returns a new value (never mutates).
+  // 0. Compose extensible — each point's transform takes the parent's frozen
+  //    value and returns a new value (never mutates). spec §8.2.
+  // We compute this FIRST so that subsequent contains-tree rewriting can
+  // substitute references to the parent's extensible values for the new ones.
   let newExtensible: unknown = parent.extensible;
+  // Map of (parent extensible value) → (new value) used for ref-substitution
+  // during contains-tree rewriting (step 1.5 below). spec §8.2: PARAMS_CONTAINS
+  // is the canonical case — JS's PARAMS Mode references the parent
+  // PARAMS_CONTAINS array, and TS's extension creates a new array. Without
+  // ref-substitution, the PARAMS Mode in TS's contains would still see the
+  // parent's array. With substitution, the new array is used at every site.
+  const refSubstitution = new Map<unknown, unknown>();
   if (extensions.extendPoints !== undefined && extensions.extendPoints !== null) {
     if (parent.extensible === undefined || parent.extensible === null) {
       // The conditional type (`never`) prevents this at TS time, but a runtime
@@ -238,11 +224,54 @@ export function extendLanguage<TExt>(
     for (const key of Object.keys(points)) {
       const transform = points[key];
       if (transform !== undefined) {
-        composed[key] = transform(parentExt[key]);
+        const oldValue = parentExt[key];
+        const newValue = transform(oldValue);
+        composed[key] = newValue;
+        // Only register a substitution when the value actually changed AND
+        // the value is an object (substitutable). Primitives are left alone.
+        if (oldValue !== newValue && typeof oldValue === 'object' && oldValue !== null) {
+          refSubstitution.set(oldValue, newValue);
+        }
       }
     }
     newExtensible = composed;
   }
+
+  // 1. Replace modes by label, then apply transformLabeledMode.
+  const replaceMap = new Map<string, Mode>();
+  for (const r of extensions.replaceModes ?? []) {
+    replaceMap.set(r.label, r.with);
+  }
+  const transformMap = new Map<string, (m: Mode) => Mode>();
+  for (const t of extensions.transformLabeledMode ?? []) {
+    transformMap.set(t.label, t.transform);
+  }
+
+  // Process each top-level mode through the label-based replace/transform,
+  // then through the extensible-ref substitution. spec §8.2.1 / §8.2.2.
+  const replacedContains: Mode[] = parent.contains.map((m) => {
+    let result = m;
+    if (m.label !== undefined) {
+      const replacement = replaceMap.get(m.label);
+      if (replacement !== undefined) result = replacement;
+      else {
+        const transform = transformMap.get(m.label);
+        if (transform !== undefined) result = transform(m);
+      }
+    }
+    // 1.5. Apply the ref-substitution recursively. When the parent's
+    // extension surface declared (e.g.) PARAMS_CONTAINS as a referenced
+    // array, the parent's PARAMS Mode points to that array. After extending,
+    // the PARAMS Mode in the child must point to the NEW array. spec §8.2.
+    if (refSubstitution.size > 0) {
+      result = substituteRefsInMode(result, refSubstitution, new WeakMap());
+    }
+    return result;
+  });
+
+  // 2. Append new modes from addContains. These are TS-authored Modes; they
+  // do NOT need ref-substitution (the author wrote them with the new values).
+  const newContains: readonly Mode[] = [...replacedContains, ...(extensions.addContains ?? [])];
 
   // 4. Merge keywords (shallow merge).
   const newKeywords =
@@ -275,6 +304,120 @@ export function extendLanguage<TExt>(
   if (newExtensible !== undefined && newExtensible !== null) child.extensible = newExtensible;
 
   return deepFreezeLanguage(child as LanguageDefinition<unknown>);
+}
+
+// ---------------------------------------------------------------------------
+// Ref-substitution helper for extendLanguage (spec §8.2)
+// ---------------------------------------------------------------------------
+
+/**
+ * Walk a Mode tree and substitute any field whose value is a key in `subs`
+ * with the corresponding new value. Used by `extendLanguage` to propagate
+ * extension-point changes (e.g. PARAMS_CONTAINS) into nested Mode references.
+ * spec §8.2 / §8.2.1.
+ *
+ * The walk visits `contains` (array of Modes), `variants` (array of Modes),
+ * and `starts` (single Mode). Other Mode fields (regex strings, scope,
+ * keywords, etc.) are NOT walked — they cannot reference an extensible
+ * value. The walk uses a WeakMap-based memo to avoid cycles and re-walking.
+ *
+ * Returns a new frozen Mode if substitution occurred anywhere in the
+ * subtree; otherwise returns the input unchanged (structural sharing).
+ */
+function substituteRefsInMode(
+  mode: Mode,
+  subs: ReadonlyMap<unknown, unknown>,
+  memo: WeakMap<Mode, Mode>,
+): Mode {
+  const cached = memo.get(mode);
+  if (cached !== undefined) return cached;
+
+  // Insert a placeholder up-front so cyclic references (e.g. lang-javascript's
+  // SUBST ↔ TEMPLATE_STRING mutual recursion) terminate. The placeholder is
+  // THIS Mode (the input). If the recursive walk discovers no substitution
+  // within this subtree, the placeholder stands as the final result. If it
+  // does, we update the cached entry to point to the new Mode AT THE END (so
+  // any cyclic re-entry resolves to the new value). spec §8.2 / §8.2.1
+  // cycle handling.
+  //
+  // Trade-off: cyclic references that ARE the substitution target see the
+  // OLD value during the descent, then the memo entry flips to the new
+  // value after the new Mode is constructed. For lang-javascript, the
+  // PARAMS_CONTAINS ref-substitution does NOT participate in any cycle
+  // (PARAMS_CONTAINS is a top-level array referenced only by the PARAMS
+  // Mode), so the trade-off is theoretical here.
+  memo.set(mode, mode);
+
+  let changed = false;
+  let newContains: readonly (Mode | 'self')[] | undefined;
+  if (mode.contains !== undefined) {
+    // Direct ref-match: the entire contains array is a substitution target.
+    const directHit = subs.get(mode.contains);
+    if (directHit !== undefined) {
+      newContains = directHit as readonly (Mode | 'self')[];
+      changed = true;
+    } else {
+      // Recurse into each entry.
+      const next: (Mode | 'self')[] = [];
+      let anyChanged = false;
+      for (const item of mode.contains) {
+        if (item === 'self') {
+          next.push('self');
+          continue;
+        }
+        const sub = substituteRefsInMode(item, subs, memo);
+        if (sub !== item) anyChanged = true;
+        next.push(sub);
+      }
+      if (anyChanged) {
+        newContains = next;
+        changed = true;
+      }
+    }
+  }
+
+  let newVariants: readonly Mode[] | undefined;
+  if (mode.variants !== undefined) {
+    const directHit = subs.get(mode.variants);
+    if (directHit !== undefined) {
+      newVariants = directHit as readonly Mode[];
+      changed = true;
+    } else {
+      const next: Mode[] = [];
+      let anyChanged = false;
+      for (const item of mode.variants) {
+        const sub = substituteRefsInMode(item, subs, memo);
+        if (sub !== item) anyChanged = true;
+        next.push(sub);
+      }
+      if (anyChanged) {
+        newVariants = next;
+        changed = true;
+      }
+    }
+  }
+
+  let newStarts: Mode | undefined;
+  if (mode.starts !== undefined) {
+    const sub = substituteRefsInMode(mode.starts, subs, memo);
+    if (sub !== mode.starts) {
+      newStarts = sub;
+      changed = true;
+    }
+  }
+
+  if (!changed) {
+    return mode;
+  }
+
+  // Build a new Mode with the substituted fields. Update the memo to point
+  // to the new value so any cyclic re-entry during this call resolves to it.
+  const out: { -readonly [K in keyof Mode]: Mode[K] } = { ...mode };
+  if (newContains !== undefined) out.contains = newContains;
+  if (newVariants !== undefined) out.variants = newVariants;
+  if (newStarts !== undefined) out.starts = newStarts;
+  memo.set(mode, out as Mode);
+  return out as Mode;
 }
 
 // ---------------------------------------------------------------------------

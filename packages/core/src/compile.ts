@@ -110,6 +110,15 @@ export interface CompiledMode {
 export function compileLanguage(def: LanguageDefinition<unknown>): CompiledLanguage {
   const compilerExtensions = def.compilerExtensions ?? [];
 
+  // Per-call memoisation: same Mode reference → same CompiledMode. Resolves
+  // cycles in the source mode tree (e.g. lang-javascript's TEMPLATE_STRING ↔
+  // SUBST mutual recursion — spec §8.2.1 worked example shape). The map is
+  // discarded after compileLanguage returns, so different Highlighter
+  // registrations of the same definition still produce fresh artifacts (per
+  // spec §9.1 invariant: "compileLanguage(def) === compileLanguage(def)
+  // returns equal-but-not-identical artifacts").
+  const memo = new Map<Mode, CompiledModeMutable>();
+
   const root = compileMode(
     {
       // The implicit root mode wraps the language's contains.
@@ -121,7 +130,17 @@ export function compileLanguage(def: LanguageDefinition<unknown>): CompiledLangu
     undefined,
     compilerExtensions,
     def.caseInsensitive ?? false,
+    memo,
   );
+
+  // Freeze every CompiledMode reachable through the memo map AFTER the whole
+  // tree is built. spec §9.1: the engine talks to a frozen artifact; the
+  // intermediate mutable state is internal to compileLanguage and never
+  // exposed. This deferred freeze is required because cycle resolution sets
+  // `compiled.contains` after the placeholder is inserted into the memo.
+  for (const node of memo.values()) {
+    Object.freeze(node);
+  }
 
   const compiled: CompiledLanguage = {
     name: def.name,
@@ -136,13 +155,40 @@ export function compileLanguage(def: LanguageDefinition<unknown>): CompiledLangu
   return Object.freeze(compiled);
 }
 
+/**
+ * Internal mutable shape — same fields as `CompiledMode`, but with a `contains`
+ * we can write once. Cycles in the source Mode tree (spec §8.2.1: SUBST ↔
+ * TEMPLATE_STRING mutual recursion in lang-javascript) are resolved by
+ * inserting a placeholder into the memo map BEFORE compiling children, so a
+ * recursive descent finds the placeholder and returns it. The placeholder's
+ * `contains` is filled in after children compile.
+ *
+ * `Object.freeze` is applied at the very end of compileLanguage, after all
+ * placeholders have their contains populated (which is when the cycle has
+ * been fully traced). Until then, the objects are NOT frozen — but they ARE
+ * never exposed to user code, so the immutability invariant (spec §9.1) is
+ * preserved at the API boundary.
+ */
+type CompiledModeMutable = {
+  -readonly [K in keyof CompiledMode]: CompiledMode[K];
+};
+
 function compileMode(
   mode: Mode,
   parent: Mode | undefined,
   parentCompiled: CompiledMode | undefined,
   exts: readonly CompilerExt[],
   caseInsensitive: boolean,
+  memo: Map<Mode, CompiledModeMutable>,
 ): CompiledMode {
+  // Memoise — if we've seen this exact source Mode before in the current
+  // compileLanguage call, return the placeholder to break cycles. spec §9.1
+  // (per-compileLanguage cache) and §8.2.1 (lang-javascript SUBST cycle).
+  const cached = memo.get(mode);
+  if (cached !== undefined) {
+    return cached as unknown as CompiledMode;
+  }
+
   // Apply compilerExtensions to a shallow clone — the extensions may mutate
   // the clone in place, but the source mode is unchanged. spec section 9.4.
   const cloned: Mode = { ...mode };
@@ -218,50 +264,6 @@ function compileMode(
   const keywordPatternRe =
     keywords !== undefined ? compileKeywordPatternRe(mutable, caseInsensitive) : undefined;
 
-  // Build a partial CompiledMode for the parentCompiled-of-children link.
-  // We assemble children with this partial, then construct the final frozen
-  // node. The partial must include `terminatorEnd` (the only field children
-  // read) and other readonly fields (since the type is fully readonly we
-  // produce a coerced shape).
-  const partial: CompiledMode = Object.freeze({
-    contains: Object.freeze([] as readonly CompiledMode[]),
-    relevance: mutable.relevance ?? 1,
-    excludeBegin: mutable.excludeBegin ?? false,
-    excludeEnd: mutable.excludeEnd ?? false,
-    returnBegin: mutable.returnBegin ?? false,
-    returnEnd: mutable.returnEnd ?? false,
-    skip: mutable.skip ?? false,
-    endsParent: mutable.endsParent ?? false,
-    endsWithParent: mutable.endsWithParent ?? false,
-    endSameAsBegin: mutable.endSameAsBegin ?? false,
-    terminatorEnd,
-    caseInsensitive,
-    isMultiCapture: multiCapture,
-  });
-
-  // Spec §9.4: `variants` expansion. Upstream's `expandOrCloneMode`
-  // (`mode_compiler.js:404-432`) replaces a mode with `variants: [...]` by N
-  // sibling modes — each variant is `{ ...parent, ...variant, variants: [] }`.
-  // The expansion happens in the parent's children loop. spec §8.2.1: JS uses
-  // `variants` for `CLASS_OR_EXTENDS` (with-extends vs without) and
-  // `FUNCTION_DEFINITION` (named vs anonymous), so cohort 4 is the first
-  // language to exercise this.
-  const expandedChildren: Mode[] = [];
-  for (const child of mutable.contains ?? []) {
-    if (child === 'self') continue;
-    if (child.variants !== undefined && child.variants.length > 0) {
-      for (const variant of child.variants) {
-        expandedChildren.push(mergeVariantWithParent(child, variant));
-      }
-    } else {
-      expandedChildren.push(child);
-    }
-  }
-
-  const compiledContains: readonly CompiledMode[] = Object.freeze(
-    expandedChildren.map((c) => compileMode(c, mutable, partial, exts, caseInsensitive)),
-  );
-
   // Spec §8.2.1: when `match` (or `begin`) is an array AND `scope` is a
   // ScopeMap, the per-capture-group scope is published via `beginScope` for
   // the matcher's runtime per-group emit. We normalise here so the matcher
@@ -278,8 +280,11 @@ function compileMode(
     derivedBeginScope = mutable.scope as ScopeMap;
   }
 
-  const compiled: CompiledMode = {
-    contains: compiledContains,
+  // Construct the placeholder eagerly so child compilations that recurse back
+  // into this Mode (cycle) find the placeholder rather than re-entering. We
+  // populate `contains` after children compile. spec §9.1 / §8.2.1.
+  const compiled: CompiledModeMutable = {
+    contains: [] as readonly CompiledMode[],
     relevance: mutable.relevance ?? 1,
     excludeBegin: mutable.excludeBegin ?? false,
     excludeEnd: mutable.excludeEnd ?? false,
@@ -292,27 +297,63 @@ function compileMode(
     terminatorEnd,
     caseInsensitive,
     isMultiCapture: multiCapture,
-    ...(typeof mutable.scope === 'string' ? { scope: mutable.scope } : {}),
-    ...(mutable.label !== undefined ? { label: mutable.label } : {}),
-    ...(effectiveBeginRe !== undefined ? { beginRe: effectiveBeginRe } : {}),
-    ...(beginPatternForUse !== undefined ? { beginPattern: beginPatternForUse } : {}),
-    ...(endPatternForUse !== undefined
-      ? { endRe: compileRe(endPatternForUse, caseInsensitive), endPattern: endPatternForUse }
-      : {}),
-    ...(matchPattern !== undefined && mutable.match !== undefined
-      ? { matchRe: compileRe(matchPattern, caseInsensitive) }
-      : {}),
-    ...(illegalPattern !== undefined
-      ? { illegalRe: compileRe(illegalPattern, caseInsensitive) }
-      : {}),
-    ...(keywords !== undefined ? { keywords } : {}),
-    ...(keywordPatternRe !== undefined ? { keywordPatternRe } : {}),
-    ...(mutable.subLanguage !== undefined ? { subLanguage: mutable.subLanguage } : {}),
-    ...(derivedBeginScope !== undefined ? { beginScope: derivedBeginScope } : {}),
-    ...(mutable.endScope !== undefined ? { endScope: mutable.endScope } : {}),
   };
+  // Optional fields — only set when defined to keep the runtime shape lean.
+  if (typeof mutable.scope === 'string') compiled.scope = mutable.scope;
+  if (mutable.label !== undefined) compiled.label = mutable.label;
+  if (effectiveBeginRe !== undefined) compiled.beginRe = effectiveBeginRe;
+  if (beginPatternForUse !== undefined) compiled.beginPattern = beginPatternForUse;
+  if (endPatternForUse !== undefined) {
+    compiled.endRe = compileRe(endPatternForUse, caseInsensitive);
+    compiled.endPattern = endPatternForUse;
+  }
+  if (matchPattern !== undefined && mutable.match !== undefined) {
+    compiled.matchRe = compileRe(matchPattern, caseInsensitive);
+  }
+  if (illegalPattern !== undefined) {
+    compiled.illegalRe = compileRe(illegalPattern, caseInsensitive);
+  }
+  if (keywords !== undefined) compiled.keywords = keywords;
+  if (keywordPatternRe !== undefined) compiled.keywordPatternRe = keywordPatternRe;
+  if (mutable.subLanguage !== undefined) compiled.subLanguage = mutable.subLanguage;
+  if (derivedBeginScope !== undefined) compiled.beginScope = derivedBeginScope;
+  if (mutable.endScope !== undefined) compiled.endScope = mutable.endScope;
 
-  return Object.freeze(compiled);
+  // Memoise BEFORE recursing into children so cycles see the placeholder.
+  memo.set(mode, compiled);
+
+  // Spec §9.4: `variants` expansion. Upstream's `expandOrCloneMode`
+  // (`mode_compiler.js:404-432`) replaces a mode with `variants: [...]` by N
+  // sibling modes — each variant is `{ ...parent, ...variant, variants: [] }`.
+  // The expansion happens in the parent's children loop. spec §8.2.1: JS uses
+  // `variants` for `CLASS_OR_EXTENDS` (with-extends vs without) and
+  // `FUNCTION_DEFINITION` (named vs anonymous), so cohort 4 is the first
+  // language to exercise this.
+  const expandedChildren: Mode[] = [];
+  for (const child of mutable.contains ?? []) {
+    if (child === 'self') {
+      // 'self' is the source-mode self-reference. Compile into a recursive
+      // edge by re-using the placeholder for the current mode (just inserted
+      // into memo). spec §9.4 — mirrors upstream `expandOrCloneMode` /
+      // `inherit("self", ...)`.
+      expandedChildren.push(mode);
+      continue;
+    }
+    if (child.variants !== undefined && child.variants.length > 0) {
+      for (const variant of child.variants) {
+        expandedChildren.push(mergeVariantWithParent(child, variant));
+      }
+    } else {
+      expandedChildren.push(child);
+    }
+  }
+
+  // Children compile recursively; the memo guards against re-entry.
+  compiled.contains = Object.freeze(
+    expandedChildren.map((c) => compileMode(c, mutable, compiled, exts, caseInsensitive, memo)),
+  );
+
+  return compiled as CompiledMode;
 }
 
 /**

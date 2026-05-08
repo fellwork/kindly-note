@@ -37,10 +37,27 @@ const KINDLY_NOTE_PACKAGES: readonly string[] = [
   'lang-typescript',
 ];
 
-const aliases = KINDLY_NOTE_PACKAGES.map((pkg) => ({
+// Subpath aliases (e.g. `@kindly-note/core/regex` → `packages/core/src/regex.ts`)
+// must resolve BEFORE the bare-package alias (Vite tries aliases in order).
+// `@kindly-note/core` declares `./regex` and `./errors` subpath exports in
+// `package.json#exports`; only these two are actively used today.
+const subpathAliases = [
+  {
+    find: /^@kindly-note\/core\/regex$/,
+    replacement: `${repoRoot}packages/core/src/regex.ts`,
+  },
+  {
+    find: /^@kindly-note\/core\/errors$/,
+    replacement: `${repoRoot}packages/core/src/errors.ts`,
+  },
+];
+
+const bareAliases = KINDLY_NOTE_PACKAGES.map((pkg) => ({
   find: `@kindly-note/${pkg}`,
   replacement: `${repoRoot}packages/${pkg}/src/index.ts`,
 }));
+
+const aliases = [...subpathAliases, ...bareAliases];
 
 export const sharedTestConfig = defineConfig({
   resolve: {
