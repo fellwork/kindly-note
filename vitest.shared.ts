@@ -40,6 +40,7 @@ const KINDLY_NOTE_PACKAGES: readonly string[] = [
   'auto-detect',
   'loader-dynamic-import',
   'loader-fetch',
+  'browser',
 ];
 
 // Subpath aliases (e.g. `@kindly-note/core/regex` → `packages/core/src/regex.ts`)
