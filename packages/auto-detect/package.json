@@ -1,6 +1,6 @@
 {
   "name": "@kindly-note/auto-detect",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Heuristic language auto-detection for kindly-note. Pure function over a registered language set; mirrors upstream highlightAuto with supersetOf tie-breaking.",
   "license": "MIT",
   "type": "module",
@@ -14,7 +14,10 @@
     "./package.json": "./package.json"
   },
   "sideEffects": false,
-  "files": ["dist", "src"],
+  "files": [
+    "dist",
+    "src"
+  ],
   "scripts": {
     "build": "rolldown -c",
     "test": "vitest run",

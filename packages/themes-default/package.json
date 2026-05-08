@@ -1,6 +1,6 @@
 {
   "name": "@kindly-note/themes-default",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "First-party CSS theme set for kindly-note: dark, light, high-contrast — plus an opt-in compat layer that lets users keep their existing hljs-* themes. CSS-only.",
   "license": "MIT",
   "type": "module",
@@ -22,7 +22,11 @@
     "./dist/high-contrast.css",
     "./dist/compat-hljs.css"
   ],
-  "files": ["dist", "src", "styles"],
+  "files": [
+    "dist",
+    "src",
+    "styles"
+  ],
   "scripts": {
     "build": "tsc -b && bun run build:assets",
     "build:assets": "bun ./scripts/copy-assets.ts",

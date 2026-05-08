@@ -1,6 +1,6 @@
 {
   "name": "@kindly-note/lang-helpers",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Standalone, tree-shakable Mode helpers and regex constants for kindly-note language packages. Types-only dependency on @kindly-note/core.",
   "license": "MIT",
   "type": "module",
@@ -14,7 +14,10 @@
     "./package.json": "./package.json"
   },
   "sideEffects": false,
-  "files": ["dist", "src"],
+  "files": [
+    "dist",
+    "src"
+  ],
   "scripts": {
     "build": "rolldown -c",
     "test": "vitest run",

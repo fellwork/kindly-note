@@ -1,6 +1,6 @@
 {
   "name": "@kindly-note/legacy-plugin-adapter",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Adapter that wraps an upstream highlight.js-shaped HLJSPlugin (six legacy before:* / after:* hooks) into a modern @kindly-note/core Plugin. Mutation semantics quarantined inside the adapter; the modern protocol stays pure.",
   "license": "MIT",
   "type": "module",
@@ -14,7 +14,10 @@
     "./package.json": "./package.json"
   },
   "sideEffects": false,
-  "files": ["dist", "src"],
+  "files": [
+    "dist",
+    "src"
+  ],
   "scripts": {
     "build": "rolldown -c",
     "test": "vitest run",

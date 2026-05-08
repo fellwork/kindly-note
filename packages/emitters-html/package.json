@@ -1,6 +1,6 @@
 {
   "name": "@kindly-note/emitters-html",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Default HTML-string emitter for kindly-note. Tiered scope-to-class mapping with `kn-` default prefix.",
   "license": "MIT",
   "type": "module",
@@ -14,7 +14,10 @@
     "./package.json": "./package.json"
   },
   "sideEffects": false,
-  "files": ["dist", "src"],
+  "files": [
+    "dist",
+    "src"
+  ],
   "scripts": {
     "build": "rolldown -c",
     "test": "vitest run",

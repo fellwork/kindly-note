@@ -1,6 +1,6 @@
 {
   "name": "@kindly-note/lang-javascript",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "JavaScript language definition for kindly-note. Aliases: js, jsx, mjs, cjs. Default-exports a deep-frozen LanguageDefinition with typed JavaScriptExtensionPoints for downstream extenders (TypeScript, CoffeeScript).",
   "license": "MIT",
   "type": "module",
@@ -14,7 +14,10 @@
     "./package.json": "./package.json"
   },
   "sideEffects": false,
-  "files": ["dist", "src"],
+  "files": [
+    "dist",
+    "src"
+  ],
   "scripts": {
     "build": "rolldown -c",
     "test": "vitest run",

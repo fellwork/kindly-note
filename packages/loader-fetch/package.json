@@ -1,6 +1,6 @@
 {
   "name": "@kindly-note/loader-fetch",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Fetch-based language loader for kindly-note. Pulls serialized JSON LanguageDefinitions from a URL prefix. Workers/Edge friendly. spec §4.2.3.",
   "license": "MIT",
   "type": "module",
@@ -14,7 +14,10 @@
     "./package.json": "./package.json"
   },
   "sideEffects": false,
-  "files": ["dist", "src"],
+  "files": [
+    "dist",
+    "src"
+  ],
   "scripts": {
     "build": "rolldown -c",
     "test": "vitest run",
