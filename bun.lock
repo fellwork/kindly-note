@@ -50,6 +50,22 @@
         "vitest": "^2.1.8",
       },
     },
+    "packages/lang-javascript": {
+      "name": "@kindly-note/lang-javascript",
+      "version": "0.0.1",
+      "dependencies": {
+        "@kindly-note/core": "workspace:*",
+        "@kindly-note/lang-helpers": "workspace:*",
+        "@kindly-note/lang-pack-ecmascript": "workspace:*",
+      },
+      "devDependencies": {
+        "@kindly-note/emitters-html": "workspace:*",
+        "rolldown": "1.0.0",
+        "rolldown-plugin-dts": "0.16.0",
+        "typescript": "^5.7.2",
+        "vitest": "^2.1.8",
+      },
+    },
     "packages/lang-json": {
       "name": "@kindly-note/lang-json",
       "version": "0.0.1",
@@ -74,6 +90,23 @@
         "@kindly-note/lang-helpers": "workspace:*",
       },
       "devDependencies": {
+        "rolldown": "1.0.0",
+        "rolldown-plugin-dts": "0.16.0",
+        "typescript": "^5.7.2",
+        "vitest": "^2.1.8",
+      },
+    },
+    "packages/lang-typescript": {
+      "name": "@kindly-note/lang-typescript",
+      "version": "0.0.1",
+      "dependencies": {
+        "@kindly-note/core": "workspace:*",
+        "@kindly-note/lang-helpers": "workspace:*",
+        "@kindly-note/lang-javascript": "workspace:*",
+        "@kindly-note/lang-pack-ecmascript": "workspace:*",
+      },
+      "devDependencies": {
+        "@kindly-note/emitters-html": "workspace:*",
         "rolldown": "1.0.0",
         "rolldown-plugin-dts": "0.16.0",
         "typescript": "^5.7.2",
@@ -214,9 +247,13 @@
 
     "@kindly-note/lang-helpers": ["@kindly-note/lang-helpers@workspace:packages/lang-helpers"],
 
+    "@kindly-note/lang-javascript": ["@kindly-note/lang-javascript@workspace:packages/lang-javascript"],
+
     "@kindly-note/lang-json": ["@kindly-note/lang-json@workspace:packages/lang-json"],
 
     "@kindly-note/lang-pack-ecmascript": ["@kindly-note/lang-pack-ecmascript@workspace:packages/lang-pack-ecmascript"],
+
+    "@kindly-note/lang-typescript": ["@kindly-note/lang-typescript@workspace:packages/lang-typescript"],
 
     "@manypkg/find-root": ["@manypkg/find-root@1.1.0", "", { "dependencies": { "@babel/runtime": "^7.5.5", "@types/node": "^12.7.1", "find-up": "^4.1.0", "fs-extra": "^8.1.0" } }, "sha512-mki5uBvhHzO8kYYix/WRy2WX8S3B5wdVSc9D6KcU5lQNglP2yt58/VfLuAK49glRXChosY8ap2oJ1qgma3GUVA=="],
 
