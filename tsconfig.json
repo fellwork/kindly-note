@@ -3,6 +3,7 @@
   "references": [
     { "path": "./packages/core" },
     { "path": "./packages/lang-helpers" },
-    { "path": "./packages/emitters-html" }
+    { "path": "./packages/emitters-html" },
+    { "path": "./packages/lang-pack-ecmascript" }
   ]
 }
