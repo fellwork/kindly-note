@@ -38,6 +38,8 @@ const KINDLY_NOTE_PACKAGES: readonly string[] = [
   'themes-default',
   'legacy-plugin-adapter',
   'auto-detect',
+  'loader-dynamic-import',
+  'loader-fetch',
 ];
 
 // Subpath aliases (e.g. `@kindly-note/core/regex` → `packages/core/src/regex.ts`)

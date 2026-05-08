@@ -10,6 +10,8 @@
     { "path": "./packages/lang-typescript" },
     { "path": "./packages/themes-default" },
     { "path": "./packages/legacy-plugin-adapter" },
-    { "path": "./packages/auto-detect" }
+    { "path": "./packages/auto-detect" },
+    { "path": "./packages/loader-dynamic-import" },
+    { "path": "./packages/loader-fetch" }
   ]
 }
