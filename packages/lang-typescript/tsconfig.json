@@ -1,0 +1,17 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": "./src",
+    "outDir": "./dist",
+    "tsBuildInfoFile": "./dist/.tsbuildinfo",
+    "types": []
+  },
+  "references": [
+    { "path": "../core" },
+    { "path": "../lang-helpers" },
+    { "path": "../lang-pack-ecmascript" },
+    { "path": "../lang-javascript" }
+  ],
+  "include": ["src/**/*"],
+  "exclude": ["dist", "tests", "node_modules"]
+}
