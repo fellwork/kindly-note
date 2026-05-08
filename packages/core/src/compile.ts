@@ -161,7 +161,9 @@ function compileMode(
     effectiveBeginPattern = rawBeginPattern;
   }
   const effectiveBeginRe =
-    effectiveBeginPattern !== undefined ? compileRe(effectiveBeginPattern, caseInsensitive) : undefined;
+    effectiveBeginPattern !== undefined
+      ? compileRe(effectiveBeginPattern, caseInsensitive)
+      : undefined;
 
   // We construct the compiled node as a mutable shape, then freeze. This is
   // necessary because the parent-aware `terminatorEnd` propagation needs the
@@ -196,7 +198,8 @@ function compileMode(
   }
 
   const keywords = mutable.keywords !== undefined ? buildKeywordDict(mutable.keywords) : undefined;
-  const keywordPatternRe = keywords !== undefined ? compileKeywordPatternRe(mutable, caseInsensitive) : undefined;
+  const keywordPatternRe =
+    keywords !== undefined ? compileKeywordPatternRe(mutable, caseInsensitive) : undefined;
 
   // Build a partial CompiledMode for the parentCompiled-of-children link.
   // We assemble children with this partial, then construct the final frozen

@@ -33,7 +33,7 @@ import type { CompiledLanguage, CompiledMode } from '../compile.js';
 import type { Emitter, TokenStream } from '../emitter.js';
 import { IllegalSyntaxError } from '../errors.js';
 import { escape as regexEscape } from '../regex.js';
-import { MultiRegex, type MultiMatchResult } from './multi-regex.js';
+import { type MultiMatchResult, MultiRegex } from './multi-regex.js';
 
 export interface MatcherResult {
   readonly relevance: number;
@@ -55,10 +55,7 @@ export interface MatcherOptions {
 }
 
 /** What kind of rule meta we attach to multi-regex rules. */
-type RuleMeta =
-  | { kind: 'begin'; child: CompiledMode }
-  | { kind: 'end' }
-  | { kind: 'illegal' };
+type RuleMeta = { kind: 'begin'; child: CompiledMode } | { kind: 'end' } | { kind: 'illegal' };
 
 /**
  * Per-stack-frame state. The frame holds the live mode plus the dynamic end
@@ -253,10 +250,7 @@ export function runMatcher(
       const mode = frame.mode;
       let endsHere = false;
       if (frame.dynamicEndPattern !== undefined) {
-        const re = new RegExp(
-          `^(?:${frame.dynamicEndPattern})`,
-          mode.caseInsensitive ? 'mi' : 'm',
-        );
+        const re = new RegExp(`^(?:${frame.dynamicEndPattern})`, mode.caseInsensitive ? 'mi' : 'm');
         endsHere = re.test(matchPlusRemainder);
       } else if (mode.endRe !== undefined) {
         const re = new RegExp(`^(?:${mode.endRe.source})`, mode.caseInsensitive ? 'mi' : 'm');

@@ -265,7 +265,13 @@ class HighlighterImpl implements Highlighter {
       };
     };
 
-    const r = this.driveMatcher(handle.compiled, input.code, emitter, input.ignoreIllegals, runSubLanguage);
+    const r = this.driveMatcher(
+      handle.compiled,
+      input.code,
+      emitter,
+      input.ignoreIllegals,
+      runSubLanguage,
+    );
     emitter.finalize();
 
     const value = emitter.render();
