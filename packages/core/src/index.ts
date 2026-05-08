@@ -68,6 +68,21 @@ export type {
   HighlightResult,
 } from './result.js';
 
+// Loader contract + serialization shape (spec §4.2.1, §4.2.3).
+// The two v0 loader packages (`@kindly-note/loader-dynamic-import` and
+// `@kindly-note/loader-fetch`) implement this `LanguageLoader` interface
+// and depend only on these types from core.
+export {
+  deserializeLanguage,
+  type LanguageLoader,
+  type SerializedKeywords,
+  type SerializedLanguageBody,
+  type SerializedLanguageDefinition,
+  type SerializedMode,
+  type SerializedRegExp,
+  type SerializedRegexLike,
+} from './loader.js';
+
 // Convenience namespaced re-exports for the subpath APIs.
 // spec section 7.3: `import { regex } from '@kindly-note/core'` is the
 // canonical path; importing the subpath `@kindly-note/core/regex` is also

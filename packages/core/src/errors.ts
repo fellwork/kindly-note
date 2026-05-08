@@ -60,6 +60,27 @@ export class LanguageNotExtensibleError extends KindlyNoteError {
 }
 
 /**
+ * Thrown by a `LanguageLoader` when it cannot resolve a language identifier,
+ * the underlying transport (fetch / dynamic import) fails, or the loaded
+ * artifact has the wrong shape. spec §4.2.1 / §4.2.3.
+ *
+ * Both v0 loader packages (`@kindly-note/loader-dynamic-import`,
+ * `@kindly-note/loader-fetch`) wrap their underlying failures in this class
+ * so callers can branch on a single error type. The original cause is
+ * preserved in `cause` for diagnostics.
+ */
+export class LanguageLoadError extends KindlyNoteError {
+  readonly specifier: string;
+  override readonly cause: unknown;
+  constructor(specifier: string, detail: string, cause?: unknown) {
+    super(`Failed to load language "${specifier}": ${detail}`);
+    this.name = 'LanguageLoadError';
+    this.specifier = specifier;
+    this.cause = cause;
+  }
+}
+
+/**
  * Wraps a thrown error from a plugin hook so logs include both the plugin name
  * and the original cause. The engine throws this only when errorMode is 'throw'
  * (spec §2.4); under 'safe' mode the original error is logged and the plugin is
