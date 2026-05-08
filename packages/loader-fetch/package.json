@@ -1,0 +1,33 @@
+{
+  "name": "@kindly-note/loader-fetch",
+  "version": "0.0.1",
+  "description": "Fetch-based language loader for kindly-note. Pulls serialized JSON LanguageDefinitions from a URL prefix. Workers/Edge friendly. spec §4.2.3.",
+  "license": "BSD-3-Clause",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "sideEffects": false,
+  "files": ["dist", "src"],
+  "scripts": {
+    "build": "rolldown -c",
+    "test": "vitest run",
+    "typecheck": "tsc -b"
+  },
+  "dependencies": {
+    "@kindly-note/core": "workspace:*"
+  },
+  "devDependencies": {
+    "@kindly-note/emitters-html": "workspace:*",
+    "rolldown": "1.0.0",
+    "rolldown-plugin-dts": "0.16.0",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  }
+}
