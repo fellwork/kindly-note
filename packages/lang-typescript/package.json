@@ -14,23 +14,20 @@
     "./package.json": "./package.json"
   },
   "sideEffects": false,
-  "files": [
-    "dist",
-    "src"
-  ],
+  "files": ["dist", "src"],
   "scripts": {
     "build": "rolldown -c",
     "test": "vitest run",
     "typecheck": "tsc -b"
   },
   "dependencies": {
-    "@kindly-note/core": "workspace:*",
-    "@kindly-note/lang-helpers": "workspace:*",
-    "@kindly-note/lang-pack-ecmascript": "workspace:*",
-    "@kindly-note/lang-javascript": "workspace:*"
+    "@kindly-note/core": "^0.1.0",
+    "@kindly-note/lang-helpers": "^0.1.0",
+    "@kindly-note/lang-pack-ecmascript": "^0.1.0",
+    "@kindly-note/lang-javascript": "^0.1.0"
   },
   "devDependencies": {
-    "@kindly-note/emitters-html": "workspace:*",
+    "@kindly-note/emitters-html": "^0.1.0",
     "rolldown": "1.0.0",
     "rolldown-plugin-dts": "0.16.0",
     "typescript": "^5.7.2",

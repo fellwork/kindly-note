@@ -22,11 +22,7 @@
     "./dist/high-contrast.css",
     "./dist/compat-hljs.css"
   ],
-  "files": [
-    "dist",
-    "src",
-    "styles"
-  ],
+  "files": ["dist", "src", "styles"],
   "scripts": {
     "build": "tsc -b && bun run build:assets",
     "build:assets": "bun ./scripts/copy-assets.ts",
