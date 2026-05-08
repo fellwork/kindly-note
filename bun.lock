@@ -23,6 +23,20 @@
         "vitest": "^2.1.8",
       },
     },
+    "packages/emitters-html": {
+      "name": "@kindly-note/emitters-html",
+      "version": "0.0.1",
+      "devDependencies": {
+        "@kindly-note/core": "workspace:*",
+        "rolldown": "1.0.0",
+        "rolldown-plugin-dts": "0.16.0",
+        "typescript": "^5.7.2",
+        "vitest": "^2.1.8",
+      },
+      "peerDependencies": {
+        "@kindly-note/core": "workspace:*",
+      },
+    },
     "packages/lang-helpers": {
       "name": "@kindly-note/lang-helpers",
       "version": "0.0.1",
@@ -165,6 +179,8 @@
     "@jridgewell/trace-mapping": ["@jridgewell/trace-mapping@0.3.31", "", { "dependencies": { "@jridgewell/resolve-uri": "^3.1.0", "@jridgewell/sourcemap-codec": "^1.4.14" } }, "sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw=="],
 
     "@kindly-note/core": ["@kindly-note/core@workspace:packages/core"],
+
+    "@kindly-note/emitters-html": ["@kindly-note/emitters-html@workspace:packages/emitters-html"],
 
     "@kindly-note/lang-helpers": ["@kindly-note/lang-helpers@workspace:packages/lang-helpers"],
 

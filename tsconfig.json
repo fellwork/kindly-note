@@ -1,4 +1,8 @@
 {
   "files": [],
-  "references": [{ "path": "./packages/core" }, { "path": "./packages/lang-helpers" }]
+  "references": [
+    { "path": "./packages/core" },
+    { "path": "./packages/lang-helpers" },
+    { "path": "./packages/emitters-html" }
+  ]
 }
