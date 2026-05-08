@@ -88,6 +88,14 @@ export interface CompiledMode {
   readonly terminatorEnd: string;
   /** Whether `caseInsensitive` was applied during regex compilation. */
   readonly caseInsensitive: boolean;
+  /**
+   * True when the source mode's `begin` or `match` was an array — meaning the
+   * compiled pattern is a concatenation of capture groups, one per array
+   * element. The matcher uses this flag plus `beginScope` (a ScopeMap when
+   * present) to emit a per-group scope on the begin lexeme. spec §8.2.1
+   * worked example.
+   */
+  readonly isMultiCapture: boolean;
 }
 
 // ---------------------------------------------------------------------------
@@ -144,10 +152,19 @@ function compileMode(
     if (result !== undefined) mutable = result;
   }
 
-  const rawBeginPattern = pickPattern(mutable.begin ?? mutable.match);
+  // Multi-capture-group begin/match: when `match`/`begin` is an array, upstream
+  // (mode_compiler.js#multiClassNeeded) concatenates the elements as separate
+  // capture groups so a per-group scope map can attribute each lexeme. Mirrors
+  // upstream `buildModeRegex` (`(part1)(part2)(part3)`). Spec §8.2.1 worked
+  // example uses this in the JS class-declaration mode (`match: [/class/,
+  // /\s+/, IDENT_RE]`). Cohort 4 (lang-javascript) is the first language to
+  // exercise this path. The boolean `multiCapture` is recorded so the matcher
+  // can route per-group scope emit at runtime.
+  const multiCapture = Array.isArray(mutable.begin) || Array.isArray(mutable.match);
+  const rawBeginPattern = pickBeginOrMatchPattern(mutable.begin ?? mutable.match);
   const rawEndPattern = pickPattern(mutable.end);
   const illegalPattern = pickPattern(mutable.illegal);
-  const matchPattern = pickPattern(mutable.match);
+  const matchPattern = pickBeginOrMatchPattern(mutable.match);
 
   // Respect beginKeywords by treating them as an alternation of literals
   // — anchored match for the keyword set. spec compatibility note: upstream
@@ -219,13 +236,47 @@ function compileMode(
     endSameAsBegin: mutable.endSameAsBegin ?? false,
     terminatorEnd,
     caseInsensitive,
+    isMultiCapture: multiCapture,
   });
 
+  // Spec §9.4: `variants` expansion. Upstream's `expandOrCloneMode`
+  // (`mode_compiler.js:404-432`) replaces a mode with `variants: [...]` by N
+  // sibling modes — each variant is `{ ...parent, ...variant, variants: [] }`.
+  // The expansion happens in the parent's children loop. spec §8.2.1: JS uses
+  // `variants` for `CLASS_OR_EXTENDS` (with-extends vs without) and
+  // `FUNCTION_DEFINITION` (named vs anonymous), so cohort 4 is the first
+  // language to exercise this.
+  const expandedChildren: Mode[] = [];
+  for (const child of mutable.contains ?? []) {
+    if (child === 'self') continue;
+    if (child.variants !== undefined && child.variants.length > 0) {
+      for (const variant of child.variants) {
+        expandedChildren.push(mergeVariantWithParent(child, variant));
+      }
+    } else {
+      expandedChildren.push(child);
+    }
+  }
+
   const compiledContains: readonly CompiledMode[] = Object.freeze(
-    (mutable.contains ?? [])
-      .filter((c): c is Mode => c !== 'self')
-      .map((c) => compileMode(c, mutable, partial, exts, caseInsensitive)),
+    expandedChildren.map((c) => compileMode(c, mutable, partial, exts, caseInsensitive)),
   );
+
+  // Spec §8.2.1: when `match` (or `begin`) is an array AND `scope` is a
+  // ScopeMap, the per-capture-group scope is published via `beginScope` for
+  // the matcher's runtime per-group emit. We normalise here so the matcher
+  // only ever consults `beginScope`/`endScope` (typed as `string | ScopeMap`).
+  // Upstream mode_compiler does the analogous "scope as ScopeMap → beginScope"
+  // promotion in compileMode#multiClass.
+  let derivedBeginScope: string | ScopeMap | undefined = mutable.beginScope;
+  if (
+    derivedBeginScope === undefined &&
+    multiCapture &&
+    typeof mutable.scope === 'object' &&
+    mutable.scope !== null
+  ) {
+    derivedBeginScope = mutable.scope as ScopeMap;
+  }
 
   const compiled: CompiledMode = {
     contains: compiledContains,
@@ -240,6 +291,7 @@ function compileMode(
     endSameAsBegin: mutable.endSameAsBegin ?? false,
     terminatorEnd,
     caseInsensitive,
+    isMultiCapture: multiCapture,
     ...(typeof mutable.scope === 'string' ? { scope: mutable.scope } : {}),
     ...(mutable.label !== undefined ? { label: mutable.label } : {}),
     ...(effectiveBeginRe !== undefined ? { beginRe: effectiveBeginRe } : {}),
@@ -256,7 +308,7 @@ function compileMode(
     ...(keywords !== undefined ? { keywords } : {}),
     ...(keywordPatternRe !== undefined ? { keywordPatternRe } : {}),
     ...(mutable.subLanguage !== undefined ? { subLanguage: mutable.subLanguage } : {}),
-    ...(mutable.beginScope !== undefined ? { beginScope: mutable.beginScope } : {}),
+    ...(derivedBeginScope !== undefined ? { beginScope: derivedBeginScope } : {}),
     ...(mutable.endScope !== undefined ? { endScope: mutable.endScope } : {}),
   };
 
@@ -292,6 +344,45 @@ function pickPattern(p: RegexLike | readonly RegexLike[] | undefined): string | 
     return p.map(regexSource).join('|');
   }
   return regexSource(p as RegexLike);
+}
+
+/**
+ * Variant of `pickPattern` for `begin` and `match`: arrays are CONCATENATED as
+ * separate capture groups (mirrors upstream `mode_compiler.js#buildModeRegex`),
+ * not alternated. This is the canonical way upstream expresses
+ * "match a sequence of N parts and assign each part its own scope" — see the
+ * JS class-declaration mode in spec §8.2.1.
+ *
+ * Single-RegExp values pass through with their full source (capture groups
+ * inside a single source RegExp are preserved).
+ */
+function pickBeginOrMatchPattern(
+  p: RegexLike | readonly RegexLike[] | undefined,
+): string | undefined {
+  if (p === undefined) return undefined;
+  if (Array.isArray(p)) {
+    if (p.length === 0) return undefined;
+    return p.map((part) => `(${regexSource(part)})`).join('');
+  }
+  return regexSource(p as RegexLike);
+}
+
+/**
+ * Merge a `variants` entry onto its parent mode. Mirrors upstream
+ * `expandOrCloneMode` (`mode_compiler.js:404-432`): each variant becomes a
+ * sibling mode that inherits the parent's fields, then layers its own fields
+ * on top. The parent's `variants` array is dropped from the result so the
+ * synthetic mode is treated as terminal at compile time.
+ */
+function mergeVariantWithParent(parent: Mode, variant: Mode): Mode {
+  // The variant's fields override the parent's. We strip `variants` from the
+  // merged record so the recursive compileMode call doesn't loop on it. Use
+  // destructuring rather than `delete` to keep biome's noDelete rule happy.
+  const { variants: _stripped, ...rest } = { ...parent, ...variant } as Mode & {
+    variants?: readonly Mode[];
+  };
+  void _stripped;
+  return rest as Mode;
 }
 
 function compileRe(pattern: string, caseInsensitive: boolean): RegExp {

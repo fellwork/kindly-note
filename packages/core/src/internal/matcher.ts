@@ -209,6 +209,54 @@ export function runMatcher(
     emitter.addSubLanguage(result.stream, result.language);
   };
 
+  /**
+   * Emit per-capture-group scopes for a multi-capture begin/match. Mirrors
+   * upstream `emitMultiClass` (`highlight.js:291-307`). spec §8.2.1: a mode
+   * declared with `match: [/class/, /\s+/, IDENT_RE, ...]` and
+   * `scope: { 1: 'keyword', 3: 'title.class' }` (or the equivalent
+   * `beginScope`) emits each numbered capture group with its named scope.
+   * Group 0 (the whole match) maps to the special key `0`. Empty-string
+   * scope or omitted index means "no wrap" — emit the slice as plain text.
+   */
+  const emitMultiCaptureScopes = (
+    scopeMap: import('../language.js').ScopeMap,
+    lexeme: string,
+    groups: readonly (string | undefined)[],
+  ): void => {
+    // groups[0] is the full match (== lexeme). groups[1..N] are the per-element
+    // capture groups produced by `pickBeginOrMatchPattern`.
+    if (groups.length <= 1) {
+      // Defensive: single-group multi-capture (degenerate) — emit lexeme as-is.
+      emitter.addText(lexeme);
+      return;
+    }
+    let i = 0; // running index into the lexeme
+    for (let g = 1; g < groups.length; g++) {
+      const part = groups[g];
+      if (part === undefined) continue;
+      const startIdx = lexeme.indexOf(part, i);
+      if (startIdx < 0) {
+        // Non-contiguous — fallback. Should not happen for the concat layout
+        // produced by `pickBeginOrMatchPattern`, but be defensive.
+        emitter.addText(lexeme.slice(i));
+        return;
+      }
+      // Emit any gap between previous part and this part as plain text.
+      if (startIdx > i) emitter.addText(lexeme.slice(i, startIdx));
+      const scope = scopeMap[g];
+      if (typeof scope === 'string' && scope !== '') {
+        emitter.startScope(scope);
+        emitter.addText(part);
+        emitter.endScope();
+      } else {
+        emitter.addText(part);
+      }
+      i = startIdx + part.length;
+    }
+    // Tail (anything after the last part).
+    if (i < lexeme.length) emitter.addText(lexeme.slice(i));
+  };
+
   /** Open a new mode (push onto stack). Mirrors upstream `startNewMode`. */
   const startNewMode = (child: CompiledMode, lexeme: string): Frame => {
     if (typeof child.scope === 'string') {
@@ -304,6 +352,41 @@ export function runMatcher(
       if (child.excludeBegin) {
         modeBuffer += m.lexeme;
       }
+      // Spec §8.2.1: when the mode declares a per-capture-group scope map
+      // (via `beginScope` set by the user OR derived from `scope` when the
+      // begin/match was an array — see compile.ts), emit each numbered group
+      // with its scope BEFORE we push the mode onto the stack. The whole
+      // lexeme has already been buffered (or is about to be); we drain it via
+      // processBuffer first, then emit the multi-capture spans.
+      const beginScopeIsMap =
+        child.beginScope !== undefined && typeof child.beginScope === 'object';
+      if (child.isMultiCapture && beginScopeIsMap) {
+        // Drain the pre-lexeme buffer before emitting structured spans.
+        processBuffer();
+        // Open the mode-level scope (if string) BEFORE the per-group emit so
+        // the per-group spans nest inside the mode's own wrapper.
+        if (typeof child.scope === 'string') {
+          emitter.startScope(child.scope);
+        }
+        emitMultiCaptureScopes(
+          child.beginScope as import('../language.js').ScopeMap,
+          m.lexeme,
+          m.groups,
+        );
+        // Push the frame WITHOUT a second startScope (we already opened it).
+        const frame: Frame = { mode: child };
+        if (child.endSameAsBegin) {
+          frame.dynamicEndPattern = regexEscape(m.lexeme);
+        }
+        stack.push(frame);
+        // The lexeme has already been emitted in structured form; do NOT
+        // re-buffer it. Children of this mode (if any) start with an empty
+        // buffer.
+        modeBuffer = '';
+        i = child.returnBegin ? m.index : m.index + m.lexeme.length;
+        continue;
+      }
+
       processBuffer();
       if (!child.returnBegin && !child.excludeBegin) {
         modeBuffer = m.lexeme;
