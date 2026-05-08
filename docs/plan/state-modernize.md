@@ -7,10 +7,10 @@
 
 ## Current pointer
 
-- **Phase:** 9 — **🟢 V0 surface complete.** 13 packages on main at `e651378`. **495 tests across 13 packages, lint+typecheck clean.** Cohort 5e (browser) was the last v0 package; first one to use happy-dom Vitest env.
-- **Active artifacts:** 12 build manifests (`c1`/`c2a`/`c2b`/`c3a`/`c3b`/`c4`/`c5a`/`c5b`/`c5c`/`c5d`/`c5e`) — cumulative ~63 documented open questions; none silent.
-- **Architectural status:** Spec §0 shifts #1-#5 all validated. Spec §8.2 keystone validated. Spec §13 (markdown rendering) still v1+ scope, not implemented. **All v0 packages shipped.**
-- **Next:** V0 release rehearsal — per-package READMEs, root README polish, version bump 0.0.1→0.1.0 via Changesets, `bun run release --dry-run` validation, optional verdaccio publish smoke test, CHANGELOG generation. Then v0.1.0 publish.
+- **Phase:** 10 — **🟢 V0 release rehearsal complete (publish-ready).** 13 packages at v0.1.0; per-package READMEs (~1,545 lines total); root README polished; CHANGELOGs generated; `npm publish --dry-run` clean for all 13 packages (~300 KB total surface). Main at `e864f7a`. **480+ tests across 13 packages, lint+typecheck clean.**
+- **Active artifacts:** 12 build manifests + 13 per-package READMEs + 13 per-package CHANGELOGs.
+- **Architectural status:** Spec §0 shifts #1-#5 all validated. Spec §8.2 keystone validated. Spec §13 (markdown rendering) still v1+ scope, not implemented.
+- **Next (user decision):** verdaccio smoke test before publish, OR skip-and-publish, OR pivot to v1 markdown ring / long-tail ports.
 
 ## Locked-in scope decisions (round 0)
 
@@ -50,6 +50,8 @@
 | 8-merge | — | Team Lead | Sequenced merges in order C5d (FF) → C5a → C5b → C5c (each 3-way merge with conflicts on `tsconfig.json#references` and `vitest.shared.ts#KINDLY_NOTE_PACKAGES` — both single-line array additions per branch — and `bun.lock`). All conflicts resolved by combining entries. Bun install regenerated transitive deps. Workspace: ~462 tests across 12 packages on main, lint+typecheck clean. | 8 |
 | 9 | 2 | Builder C5e (`general-purpose`, harness-consolidated) | `feat/browser` (5 commits): `@kindly-note/browser` (33 tests). `highlightElement` / `highlightAll` / `attachToDOM` / `languageFromClass`. First package on `happy-dom` Vitest env. STATUS: DONE; one follow-up flagged: `Highlighter.plugins` accessed via duck-typed cast (private field); recommended next-cohort fix to promote it to a public read-only iterator. | 9 |
 | 9-merge | — | Team Lead | FF-merged feat/browser. **V0 surface complete: 13 packages, 495 tests, lint+typecheck clean.** Main at `e651378`. | 9 |
+| 10 | — | 13 parallel README subagents (`general-purpose`) | One subagent per package; each wrote `packages/<name>/README.md` (~80-180 lines) on its own `feat/readme-<name>` branch. All 13 returned DONE. Cherry-picked all 13 onto main (no conflicts; disjoint file scope). ~1,545 lines of READMEs total. | 10 |
+| 10-rehearsal | — | Team Lead | Polish + release rehearsal: rewrote root README; fixed `package.json` license templating bug (BSD-3-Clause → MIT) across all 13 packages; swept README license sections; ran `bun x changeset version` to consume 15 changesets (Changesets quirk: 3 packages bumped to 1.0.0 instead of 0.1.0 on `minor` from 0.0.x — manually corrected); fixed brittle test (`themes-default` had hardcoded version assertions; replaced with semver-shape regex); ran `npm publish --dry-run` for all 13 packages — total ~300 KB surface. All 480+ tests pass on the version-bumped main. | 10 |
 
 ## Open obligations
 
@@ -70,8 +72,10 @@
 - [x] **Builder cohort 4 — keystone validated.** lang-javascript + lang-typescript merged. extendLanguage ref-substitution walker added to core. Workspace src-resolution config landed.
 - [x] Builder cohort 5 (4-way parallel) — `legacy-plugin-adapter` + `auto-detect` + `loader-{fetch,dynamic-import}` + `themes-default` shipped and merged
 - [x] Builder cohort 5e — `@kindly-note/browser` shipped and merged
-- [ ] V0 release rehearsal: per-package READMEs (13), root README polish, version bump 0.0.1→0.1.0 via Changesets, `bun run release --dry-run`, optional verdaccio publish smoke test, CHANGELOG.md generation
-- [ ] V0.1.0 publish (depends on user — actually push to npm or hold for review)
+- [x] V0 release rehearsal: per-package READMEs (13 ✓), root README polish (✓), version bump 0.0.1→0.1.0 via Changesets (✓), `npm publish --dry-run` validation (✓ all 13), CHANGELOG.md generation (✓)
+- [ ] Optional: verdaccio publish smoke test (requires `npm i -g verdaccio` + auth setup)
+- [ ] Optional: tighten `files` field on packages (currently ships `dist + src`; many libs ship `dist` only; minor polish)
+- [ ] V0.1.0 publish to real npm (depends on user; requires `@kindly-note` scope ownership + `npm login`)
 - [ ] V1+ markdown ring: `lang-markdown`, `lang-markdown-gfm`, `emitters-markdown`, `emitters-mdast`, `render-markdown`, `integrations-{marked,remark}` (per round-3 user decision)
 - [ ] Promote `Highlighter.plugins` to a public read-only iterator (cohort-5e follow-up; needed for future cohorts that want introspection without duck-typed casts)
 - [ ] Long tail: ~190 language ports (mechanical, after v0 ships)
