@@ -86,6 +86,30 @@ Every cell is filled. No "TBD."
 
 ---
 
+### 1.5 Round-3 scope expansion: markdown rendering as a first-class concern (v1+)
+
+**Per round-3 user decision**, kindly-note's scope expands from "syntax highlighting" to "typed, sandboxed text-tokenization-and-rendering framework with markdown rendering as a first-class concern, with security defaults marked.js does not ship." The rationale: markdown rendering and syntax highlighting share architecture (tokenize → tree → emit), share the sub-language recursion the matcher already handles, and marked's deliberate-no-sanitization stance leaves a structural gap kindly-note's emitter contract can close.
+
+The packages below are **v1+ scope**. They are NOT part of the v0 acceptance bar. They are recorded here so future cohorts brief from a current spec rather than rediscovering this decision.
+
+| name | purpose-in-one-sentence | public exports | dependency rules | one runnable usage example |
+|---|---|---|---|---|
+| `@kindly-note/lang-markdown` | CommonMark language definition; tokenizes headings, emphasis, lists, links, fenced code blocks (with `subLanguage:` for code-fence highlighting), inline code, blockquotes, HR, paragraphs. | `default` (`LanguageDefinition<MarkdownExtensionPoints>`); named: `MarkdownExtensionPoints` (type). | Depends on: `@kindly-note/core`, `@kindly-note/lang-helpers`. | `import md from '@kindly-note/lang-markdown'; createHighlighter({ languages: [md] }).highlight(src, { language: 'markdown' });` |
+| `@kindly-note/lang-markdown-gfm` | GitHub-Flavored Markdown extension over CommonMark via the keystone `extendLanguage()` API. Adds tables, task lists, autolinks, strikethrough. | `default` (`LanguageDefinition`). | Depends on: `@kindly-note/core`, `@kindly-note/lang-markdown`. | `import gfm from '@kindly-note/lang-markdown-gfm'; createHighlighter({ languages: [gfm] });` |
+| `@kindly-note/emitters-markdown` | Semantic-HTML emitter for markdown token trees: produces `<h1>`/`<strong>`/`<a>`/`<pre><code>` etc. with **security-first defaults**. See §13. | `markdownHtmlEmitter`, `markdownHtmlEmitterWith({ allowHtml, urlAllowlist, codeEmitter, … })`. | Depends on: `@kindly-note/core`, `@kindly-note/emitters-html` (delegated to for code-fence highlighting). | `import { markdownHtmlEmitter } from '@kindly-note/emitters-markdown'; createHighlighter({ emitter: markdownHtmlEmitter }).highlight(md, { language: 'markdown' }).value;` |
+| `@kindly-note/emitters-mdast` | Markdown-AST emitter producing `mdast`-shaped nodes for unified/remark/MDX interop. No HTML; no rendering; just typed tree output. | `mdastEmitter`. | Depends on: `@kindly-note/core`, `@types/mdast`. | `import { mdastEmitter } from '@kindly-note/emitters-mdast'; const tree = createHighlighter({ emitter: mdastEmitter }).highlight(md, { language: 'markdown' }).value; // mdast Root` |
+| `@kindly-note/render-markdown` | Top-level convenience: `renderMarkdown(md, opts)` → safe HTML string in one call. Composes `lang-markdown` + `emitters-markdown` + a sensible Highlighter. | `renderMarkdown`, `RenderMarkdownOptions`. | Depends on: `@kindly-note/core`, `@kindly-note/lang-markdown`, `@kindly-note/emitters-markdown`. Optional peers: any `@kindly-note/lang-*` for code-fence languages. | `import { renderMarkdown } from '@kindly-note/render-markdown'; const html = renderMarkdown('# Hi\n```js\nfoo()\n```', { highlighter: hl });` |
+| `@kindly-note/integrations-marked` | Adapter for users who keep marked as their markdown engine and want kindly-note for code-fence highlighting only. Ships a `MarkedExtension` factory. Lower depth than `render-markdown`. | `kindlyNoteForMarked`, `highlightInline`. | Depends on: `@kindly-note/core`, `@kindly-note/emitters-html`. peerDependency: `marked >= 9`. | `marked.use(kindlyNoteForMarked(hl));` |
+| `@kindly-note/integrations-remark` | Adapter for unified/remark pipelines via `emitters-mdast`. Code-fence highlighting via the same Highlighter. | `kindlyNoteForRemark`. | Depends on: `@kindly-note/core`, `@kindly-note/emitters-mdast`. peerDependency: `unified`, `remark`. | `unified().use(remarkParse).use(kindlyNoteForRemark(hl)).use(remarkStringify).process(md);` |
+
+**Cohort placement (suggested ordering, not normative):**
+- Cohort 6+ — `lang-markdown` + `emitters-markdown` + `render-markdown` (the default rendering path). Depends on cohort-4 keystone (lang-javascript / lang-typescript work end-to-end) so code fences have something to highlight.
+- Cohort 7+ — `lang-markdown-gfm`, `emitters-mdast`, `integrations-{marked,remark}`. Each is small.
+
+**Open questions** raised by this scope expansion are added to §10 (markdown-1 through markdown-5).
+
+---
+
 ## 2. Modern plugin protocol spec
 
 ### 2.1 Decision
@@ -1444,6 +1468,21 @@ These are surfaced explicitly because they appeared in inputs and the spec answe
 - **A `kindly-note` umbrella package at the unscoped name.** §1.3: name reserved against squatting; no runtime exports.
 - **Lint rules enforcing factory-arg-over-subpath for `regex`.** §8.1: style guide only in v0; lint plugin is v1+.
 
+### 10.4 Round-3 markdown rendering open questions (v1+)
+
+Added by the round-3 scope expansion (§1.5, §13). These are NOT v0 acceptance items; they are surfaced now so the v1+ cohort that picks up `lang-markdown` / `emitters-markdown` / `emitters-mdast` has the design space mapped.
+
+| Q | Topic | Section | Resolution / current direction |
+|---|---|---|---|
+| markdown-1 | Default dialect for `@kindly-note/lang-markdown` | §13.2 | CommonMark. GFM is a separate package (`lang-markdown-gfm`) consuming the keystone `extendLanguage()` API. |
+| markdown-2 | Async rendering (link-checking, image probing, remote grammar fetch at render-time) | §2.1, §13.5 | Deferred to v1 of the plugin protocol's async story. v0 / v1.0 of `emitters-markdown` is sync-only. Two-pass user-side workaround documented in §13.5. |
+| markdown-3 | Attribute-aware emitter contract (`startScopeWithAttrs`) | §13.3 | Preliminary decision: add as optional method on `Emitter<TOutput>`. Backward-compatible (existing emitters ignore the new method). Refine in the v1 implementation cohort. |
+| markdown-4 | `@kindly-note/emitters-mdast` shape — own AST or canonical mdast | §13.4 | Canonical mdast (`@types/mdast`). Drops directly into unified/remark pipelines. Highlighting NOT injected into mdast (Code.value stays plain text per mdast invariants). |
+| markdown-5 | Code-fence highlighting integration with `emitters-markdown` | §13.1, §1.5 row `emitters-markdown` | `markdownHtmlEmitterWith({ codeEmitter })` accepts any `EmitterFactory<string>`. Default: `htmlEmitter` from `@kindly-note/emitters-html`. Users can override per-emitter (e.g., to wrap fences with line numbers, copy buttons, etc.). |
+| markdown-6 | Sanitization model — emitter-level decisions vs post-process pass | §13.1 | Emitter-level. The emitter never has a code path to emit `<script>`, `on*=`, etc. for user content. Not a sanitizer pass. Structural guarantee, not validation. |
+| markdown-7 | Trojan-source / Unicode bidi controls | §13.1 | Default-normalize bidi-control chars to U+FFFD. Override via `preserveBidiControls: true`. |
+| markdown-8 | Position of `@kindly-note/render-markdown` (top-level convenience) vs `@kindly-note/emitters-markdown` (engine) | §1.5 | Both. Engine = `emitters-markdown`. One-shot convenience = `render-markdown` (composes engine + lang-markdown + a sensible Highlighter). Keeps the convenience path tree-shake-friendly while not overloading the engine package's responsibility. |
+
 ---
 
 ## 11. Anti-pattern self-audit
@@ -1498,4 +1537,71 @@ These are intentionally Builder-time decisions, not Architect decisions, and are
 
 ---
 
+## 13. Markdown rendering — security and dialect strategy (round-3 scope expansion, v1+)
+
+> Round-3 user decision (post-Architect): kindly-note absorbs markdown rendering with security defaults marked.js does not ship. This section is the contract for the v1+ packages enumerated in §1.5.
+
+### 13.1 Security defaults — what `@kindly-note/emitters-markdown` does NOT pass through
+
+The emitter makes safe choices token-by-token during rendering. There is no "untrusted HTML" intermediate stage. Defaults that ship — overridable per emitter instance via `markdownHtmlEmitterWith({ … })` for trusted contexts:
+
+| Vector | marked default | kindly-note default |
+|---|---|---|
+| Raw HTML in markdown source (`<script>`, `<iframe>`, etc.) | passed through | escaped. Raw HTML requires `allowHtml: true` AND a `htmlSanitizer: (html) => string` callback the user provides — the emitter never decides "is this HTML safe" on its own. |
+| `[link](javascript:...)` / `[link](vbscript:...)` / `[link](data:...)` | rendered as anchor | URL allowlist checked. Default allow: `http`, `https`, `mailto`, anchors (`#…`), relative paths. Everything else → empty `href` (link text preserved). Override via `urlAllowlist: readonly string[]` or `urlPolicy: (url) => string \| null`. |
+| `![alt](data:image/...)` | rendered as image | `data:` images require explicit `allowDataImages: true`. Otherwise → image stripped, alt text preserved. |
+| HTML attributes with event handlers (`onclick`, `onerror`, `onmouseover`, all `on*`) when `allowHtml: true` | passed through | always stripped, even with `allowHtml: true`. Not configurable. (This is a structural guarantee — the emitter has no code path that would emit an `on*` attribute.) |
+| `<style>` injection inside markdown | passed through | quarantined: rendered as escaped text or stripped; never as a `<style>` block. Theme CSS comes from `@kindly-note/themes-default`, not from user content. |
+| Auto-linked URLs in text (`https://evil.com/...`) | rendered | scheme-checked first; same allowlist as explicit links. |
+| Unicode bidirectional control chars (RTL/LTR override) | passed through | normalized to U+FFFD by default (mitigates trojan-source class of attacks). Override via `preserveBidiControls: true`. |
+| Code-fence content | passed to `options.highlight` if set, else escaped | always passed through `htmlEscape` first, then through the configured `codeEmitter` (default `htmlEmitter`). Highlighter results are also re-escaped where needed (we trust our own emitter, not the language definition author). |
+
+**Structural argument:** these are not lint passes over a generated string. They are emitter-level decisions made before any string is assembled. There is no "post-process the HTML to strip `<script>`" — the emitter never emits a `<script>` open tag for user-content tokens, period.
+
+### 13.2 Dialect strategy
+
+- **Default: CommonMark** (the spec). `@kindly-note/lang-markdown`'s default export is a CommonMark `LanguageDefinition`. Pure, well-tested, stable.
+- **GFM extension via keystone:** `@kindly-note/lang-markdown-gfm` is `extendLanguage(commonMark, { addContains: [...gfmModes], extendKeywords: ..., replaceModes: ... })`. The same typed extension surface that solves TS-extends-JS solves GFM-extends-CommonMark. **This is a cheap reuse of the keystone work; it validates the architecture by exercising it in a second domain.**
+- **Custom dialects** (Notion-style `[[wikilinks]]`, Obsidian features, MDX): authored as plugins or as further `extendLanguage()` packages. The plugin protocol (§2) is the user-extensibility surface; plugins can transform the post-tokenization tree before the emitter renders.
+
+### 13.3 Emitter contract extension — attribute-aware scopes
+
+Pure `startScope(name)` / `endScope()` is sufficient for syntax highlighting where the output is `<span class="...">`. Markdown semantic HTML needs attributes: `<a href="...">`, `<img src="..." alt="...">`, `<h1 id="...">`. Two design options for v1:
+
+- **(a) Add `startScopeWithAttrs(name, attrs)` to the Emitter contract.** Attribute payload is a typed `Record<string, string>`. emitters that don't care (`emitters-html`, `emitters-ast`) ignore the attrs argument. emitters that do care (`emitters-markdown`, `emitters-hast`) consume them.
+- **(b) Encode attributes as nested scope-children.** A `<a href="https://x">y</a>` becomes `startScope('link') → startScope('href:https://x') → endScope() → addText('y') → endScope()`. Awkward but doesn't require a new method.
+
+**Decision (preliminary, refinable when we get to the implementation cohort):** option (a). The Emitter contract gains one optional method:
+
+```ts
+// contract — preliminary; refine in the v1 cohort
+export interface Emitter<TOutput> {
+  startScope(scope: ScopeName): void;
+  startScopeWithAttrs?(scope: ScopeName, attrs: Readonly<Record<string, string>>): void;
+  endScope(): void;
+  addText(text: string): void;
+  addSubLanguage(stream: TokenStream, language: string): void;
+  finalize(): void;
+  render(): TOutput;
+}
+```
+
+The `?` makes it backward-compatible: `emitters-html` (cohort 2b) does not implement it; `emitters-markdown` does. The matcher and the language definition for markdown call `startScopeWithAttrs` only when it exists; otherwise fall back to `startScope`.
+
+### 13.4 mdast emitter shape
+
+`@kindly-note/emitters-mdast` produces nodes typed against `@types/mdast`'s `Root` / `Heading` / `Paragraph` / `Emphasis` / `Strong` / `Link` / `Code` / `InlineCode` / `Image` / `List` / `ListItem` / `Blockquote` / `ThematicBreak` etc. We use the canonical mdast spec; not our own shape. This means `emitters-mdast` output drops directly into a `unified().use(remarkParse).use(...)` pipeline as if remark had parsed it.
+
+When a code fence with a known language is encountered, the emitter produces a standard mdast `Code` node with `lang` and `value` populated. **Code-fence highlighting is NOT injected into the mdast** — that would corrupt mdast's invariant that `Code.value` is plain text. Highlighting happens downstream when the consumer transforms mdast → hast (e.g. via `remark-rehype`); they pipe the `Code.value` through their highlighter of choice (which can be `@kindly-note/emitters-html` if they use our integration).
+
+### 13.5 Compatibility with sync-only v0 plugin protocol
+
+Markdown rendering is inherently synchronous in v0: no async link probing, no remote image fetching, no async grammar loading at render-time. Async deferred to v1 of the plugin protocol (§2.1). For users who need it before v1 lands, the recommended workaround is two-pass rendering: walk the token tree async-aware in user code, then call the sync emitter.
+
+---
+
 STATUS: DONE — All 10 mandatory sections specified with TypeScript contracts, worked examples (including the keystone TS/JS coupling resolution and the legacy-adapter end-to-end), the 23-step emitter call trace, and explicit answers for all 8 topic-summary + 12 Scout open questions; locked user decisions (kn- prefix, no fixture-byte-compat, Vitest+TS) preserved; anti-pattern self-audit clean.
+
+---
+
+**Round-3 amendment (2026-05-08):** §1.5 added (markdown rendering scope expansion, v1+); §13 added (markdown security and dialect strategy). Per round-3 user decision; not a deviation, an explicit addition. Open questions markdown-1..markdown-5 added to §10 in a follow-up edit.

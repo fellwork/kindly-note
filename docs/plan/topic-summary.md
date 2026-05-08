@@ -4,7 +4,11 @@
 
 ## Mission
 
-Reimplement highlight.js as **kindly-note**: a modern, ESM-only, tree-shakable, monorepo-of-small-packages syntax highlighting library with a typed plugin protocol and an adapter layer that wraps legacy highlight.js plugins.
+Reimplement highlight.js as **kindly-note**: a modern, ESM-only, tree-shakable, monorepo-of-small-packages **typed text-tokenization-and-rendering framework** with a typed plugin protocol and an adapter layer that wraps legacy highlight.js plugins.
+
+**v0 scope:** syntax highlighting (the highlight.js modernization).
+
+**v1+ scope (round-3 user decision, 2026-05-08):** markdown rendering as a first-class concern, with security defaults marked.js deliberately does not ship. Markdown is just another language definition (`@kindly-note/lang-markdown`); rendering to semantic HTML is just another emitter family (`@kindly-note/emitters-markdown`); mdast/unified interop is just another emitter (`@kindly-note/emitters-mdast`). Architectural reuse: keystone `extendLanguage()` solves CommonMark→GFM the same way it solves JS→TS. See architect-spec §1.5 + §13.
 
 ## Why this exists (problem statement)
 
@@ -59,6 +63,19 @@ A monorepo with these package categories:
 6. **Build pipeline.** ✅ **RESOLVED (round-2 user override):** rolldown for build, bun for runtime+packages+workspace, Changesets for versioning, Biome for lint, Vitest for tests. See architect-spec §6.
 7. **Language pack delivery for runtimes.** Dynamic import works for Node/browsers/Deno/Bun. For Workers, the bundler embeds dynamic imports — do we ship a fetch-based loader for runtime-loaded languages?
 8. **Compilation timing.** Per Scout §4, upstream compiles a Language's mode tree on first `_highlight()` call by mutating `mode.isCompiled = true` on the raw definition. Are kindly-note language packages distributed as raw `LanguageDefinition` factories (compiled at register time, with mutation), as immutable factories (compiled into a separate `CompiledLanguage` artifact at register time), or as pre-compiled artifacts shipped from the language package itself? Affects payload size, cold-start cost, and whether `LanguageDefinition` can be `Object.freeze`'d.
+
+## Round-3 scope expansion (2026-05-08): markdown rendering as a first-class concern
+
+Per round-3 user decision, kindly-note's mission expands to include markdown rendering with security-first defaults marked.js does not ship. Architecture reuse:
+
+- **Markdown is just another language definition** — `@kindly-note/lang-markdown` (CommonMark) + `@kindly-note/lang-markdown-gfm` (extends via the keystone `extendLanguage()` API).
+- **Rendering is just another emitter family** — `@kindly-note/emitters-markdown` (semantic HTML with security defaults), `@kindly-note/emitters-mdast` (markdown AST for unified/remark interop).
+- **Top-level convenience** — `@kindly-note/render-markdown` exposes `renderMarkdown(md, opts)` for the common case.
+- **Adapters preserved** — `@kindly-note/integrations-marked` for users keeping marked; `@kindly-note/integrations-remark` for the unified ecosystem.
+
+Security defaults (architect-spec §13.1): default-escape raw HTML; URL-scheme allowlist (`http`/`https`/`mailto`/anchors only); strip `on*` event-handler attributes always; quarantine `<style>`; opt-in `data:` images; normalize bidi controls (trojan-source mitigation). Structural guarantee — emitter never has a code path to emit unsafe constructs for user content; not a post-process sanitizer.
+
+**Scope:** v1+ (NOT a v0 acceptance item). v0 ships syntax highlighting; markdown rendering picks up after the keystone (cohort-4 lang-javascript+lang-typescript) lands. See architect-spec §1.5, §10.4, §13.
 
 ## Do-not-break list (capability surface from Scout §11)
 
