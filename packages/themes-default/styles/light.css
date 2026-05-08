@@ -1,0 +1,130 @@
+/*
+ * @kindly-note/themes-default — light theme.
+ *
+ * Inspired by the atom-one-light colour family. Palette colours are not
+ * copyrightable; CSS rules are written from scratch and target `kn-*`
+ * (spec §7.4 — kindly-note's default class prefix). Tier-suffix
+ * convention preserved (spec §5.3).
+ *
+ * Usage:
+ *   import '@kindly-note/themes-default/light.css';
+ */
+
+:root {
+  --kn-bg: #fafafa;
+  --kn-fg: #383a42;
+  --kn-muted: #a0a1a7;
+  --kn-subtle: #e5e5e6;
+
+  --kn-keyword: #a626a4;
+  --kn-title: #4078f2;
+  --kn-constant: #0184bb;
+  --kn-string: #50a14f;
+  --kn-built-in: #c18401;
+  --kn-tag: #e45649;
+  --kn-type: #986801;
+  --kn-section: #005cc5;
+  --kn-bullet: #735c0f;
+
+  --kn-deletion-fg: #cb2431;
+  --kn-deletion-bg: #ffeef0;
+  --kn-addition-fg: #22863a;
+  --kn-addition-bg: #f0fff4;
+
+  --kn-font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+    "Courier New", monospace;
+}
+
+.kn {
+  background: var(--kn-bg);
+  color: var(--kn-fg);
+  font-family: var(--kn-font-mono);
+}
+
+/* Most-visible scopes. */
+
+.kn-keyword,
+.kn-doctag {
+  color: var(--kn-keyword);
+}
+
+.kn-built_in {
+  color: var(--kn-built-in);
+}
+
+.kn-type,
+.kn-attr,
+.kn-variable,
+.kn-number {
+  color: var(--kn-type);
+}
+
+.kn-string,
+.kn-regexp,
+.kn-attribute {
+  color: var(--kn-string);
+}
+
+.kn-literal,
+.kn-symbol,
+.kn-meta {
+  color: var(--kn-constant);
+}
+
+.kn-comment,
+.kn-quote,
+.kn-code {
+  color: var(--kn-muted);
+  font-style: italic;
+}
+
+/* Title family. */
+
+.kn-title,
+.kn-title.function_,
+.kn-function {
+  color: var(--kn-title);
+}
+
+.kn-title.class_,
+.kn-title.class_.inherited__,
+.kn-class_ {
+  color: var(--kn-built-in);
+}
+
+/* Tag / selector / sub-name — atom-one-light renders these in the warm
+   red. */
+
+.kn-tag,
+.kn-name,
+.kn-selector-tag,
+.kn-bullet {
+  color: var(--kn-tag);
+}
+
+/* Diff scopes. */
+
+.kn-addition {
+  color: var(--kn-addition-fg);
+  background-color: var(--kn-addition-bg);
+}
+
+.kn-deletion {
+  color: var(--kn-deletion-fg);
+  background-color: var(--kn-deletion-bg);
+}
+
+/* Markup / prose. */
+
+.kn-strong {
+  font-weight: bold;
+}
+
+.kn-emphasis {
+  font-style: italic;
+}
+
+.kn-link {
+  color: var(--kn-section);
+  text-decoration: underline;
+}

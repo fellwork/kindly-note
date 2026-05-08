@@ -1,0 +1,140 @@
+/*
+ * @kindly-note/themes-default — high-contrast theme.
+ *
+ * Targets WCAG-AAA contrast (≥7:1) against a pure black background.
+ * Palette is bold and saturated to stay legible for users who need
+ * stronger luminance separation than the github-dark / atom-one-light
+ * defaults provide. Inspired by the Nord palette's bright accents,
+ * pulled to higher contrast.
+ *
+ * Selectors target `kn-*` (spec §7.4). Tier-suffix convention preserved
+ * (spec §5.3).
+ *
+ * Usage:
+ *   import '@kindly-note/themes-default/high-contrast.css';
+ */
+
+:root {
+  --kn-bg: #000000;
+  --kn-fg: #ffffff;
+  --kn-muted: #cccccc;
+  --kn-subtle: #444444;
+
+  --kn-keyword: #ff8888;
+  --kn-title: #88ccff;
+  --kn-constant: #ffff88;
+  --kn-string: #88ff88;
+  --kn-built-in: #ffaa66;
+  --kn-tag: #88ffff;
+  --kn-section: #88ccff;
+  --kn-bullet: #ffff88;
+
+  --kn-deletion-fg: #000000;
+  --kn-deletion-bg: #ff8888;
+  --kn-addition-fg: #000000;
+  --kn-addition-bg: #88ff88;
+
+  --kn-font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+    "Courier New", monospace;
+}
+
+.kn {
+  background: var(--kn-bg);
+  color: var(--kn-fg);
+  font-family: var(--kn-font-mono);
+  /* Slightly thicker baseline weight aids legibility on small caps. */
+  font-weight: 500;
+}
+
+/* Most-visible scopes. */
+
+.kn-keyword,
+.kn-type,
+.kn-doctag {
+  color: var(--kn-keyword);
+  font-weight: bold;
+}
+
+.kn-built_in,
+.kn-symbol {
+  color: var(--kn-built-in);
+}
+
+.kn-string,
+.kn-regexp {
+  color: var(--kn-string);
+}
+
+.kn-number,
+.kn-literal,
+.kn-attr,
+.kn-attribute,
+.kn-meta {
+  color: var(--kn-constant);
+}
+
+.kn-comment,
+.kn-quote,
+.kn-code {
+  color: var(--kn-muted);
+  font-style: italic;
+}
+
+/* Title family. */
+
+.kn-title,
+.kn-title.class_,
+.kn-title.class_.inherited__,
+.kn-title.function_,
+.kn-class_,
+.kn-function {
+  color: var(--kn-title);
+  font-weight: bold;
+}
+
+.kn-variable.language_ {
+  color: var(--kn-keyword);
+  font-weight: bold;
+}
+
+.kn-tag,
+.kn-name,
+.kn-selector-tag {
+  color: var(--kn-tag);
+}
+
+/* Diff scopes — inverted to maximise contrast between added/removed
+   regions and surrounding text. */
+
+.kn-addition {
+  color: var(--kn-addition-fg);
+  background-color: var(--kn-addition-bg);
+  font-weight: bold;
+}
+
+.kn-deletion {
+  color: var(--kn-deletion-fg);
+  background-color: var(--kn-deletion-bg);
+  font-weight: bold;
+  text-decoration: line-through;
+}
+
+/* Markup / prose. */
+
+.kn-bullet {
+  color: var(--kn-bullet);
+  font-weight: bold;
+}
+
+.kn-strong {
+  font-weight: 800;
+}
+
+.kn-emphasis {
+  font-style: italic;
+}
+
+.kn-link {
+  color: var(--kn-section);
+  text-decoration: underline;
+}

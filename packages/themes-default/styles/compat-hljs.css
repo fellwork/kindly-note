@@ -1,0 +1,168 @@
+/*
+ * @kindly-note/themes-default — compat-hljs.
+ *
+ * Compatibility shim for users who want kindly-note's `kn-*` rendering
+ * output (the default — spec §7.4) AND have an existing third-party
+ * `hljs-*` CSS theme they don't want to give up.
+ *
+ * USAGE
+ *
+ * Define `--hljs-*-color` custom properties on `:root` (or any ancestor
+ * of the `.kn` element) — typically extracted from your existing
+ * `hljs-*` theme — and this file maps each variable onto the matching
+ * `kn-*` selector:
+ *
+ *   :root {
+ *     --hljs-bg: #1e1e1e;
+ *     --hljs-fg: #d4d4d4;
+ *     --hljs-keyword-color: #569cd6;
+ *     --hljs-string-color: #ce9178;
+ *     --hljs-comment-color: #6a9955;
+ *     ...
+ *   }
+ *   @import '@kindly-note/themes-default/compat-hljs.css';
+ *
+ * Each `var(--hljs-*-color, inherit)` falls back to `inherit` when
+ * undefined, so partial palettes degrade gracefully.
+ *
+ * INVERSE DIRECTION
+ *
+ * If you want a kindly-note theme to apply to `.hljs-*` output (because
+ * downstream code targets the upstream class names), pass
+ * `classPrefix: 'hljs-'` to `createHighlighter` (spec §7.4). The
+ * `dark.css` / `light.css` / `high-contrast.css` files in this package
+ * target `.kn-*` only — they don't double-emit `.hljs-*` selectors.
+ *
+ * TRADE-OFF
+ *
+ * This shim doesn't auto-import an arbitrary third-party hljs CSS file
+ * and forward its rules — that's not possible without a build-time
+ * transformation. The variable-mapping approach requires extracting the
+ * palette from your existing theme. For most users that's a one-time
+ * 30-line copy/paste; for users who want full automation, switch to
+ * `classPrefix: 'hljs-'` instead.
+ */
+
+/* Surface colours. `--hljs-bg` / `--hljs-fg` mirror the upstream
+   convention where the `.hljs` element carries the theme's body
+   colour. */
+
+.kn {
+  background: var(--hljs-bg, transparent);
+  color: var(--hljs-fg, inherit);
+}
+
+/* Keyword family. */
+
+.kn-keyword,
+.kn-type,
+.kn-doctag {
+  color: var(--hljs-keyword-color, inherit);
+}
+
+.kn-built_in,
+.kn-symbol {
+  color: var(--hljs-built_in-color, inherit);
+}
+
+/* String family. */
+
+.kn-string,
+.kn-regexp {
+  color: var(--hljs-string-color, inherit);
+}
+
+/* Number / literal / meta. */
+
+.kn-number,
+.kn-literal {
+  color: var(--hljs-number-color, inherit);
+}
+
+.kn-attr,
+.kn-attribute {
+  color: var(--hljs-attr-color, inherit);
+}
+
+.kn-meta {
+  color: var(--hljs-meta-color, inherit);
+}
+
+/* Comment family — italic per long-standing hljs convention. */
+
+.kn-comment,
+.kn-quote,
+.kn-code {
+  color: var(--hljs-comment-color, inherit);
+  font-style: italic;
+}
+
+/* Title family. The tier-suffix mapping (spec §5.3) is preserved so
+   `kn-title class_ inherited__` matches a single span carrying all
+   three classes. */
+
+.kn-title,
+.kn-title.class_,
+.kn-title.class_.inherited__,
+.kn-title.function_,
+.kn-class_,
+.kn-function {
+  color: var(--hljs-title-color, inherit);
+}
+
+.kn-variable,
+.kn-variable.language_,
+.kn-language_,
+.kn-params {
+  color: var(--hljs-variable-color, inherit);
+}
+
+/* Markup tag family. */
+
+.kn-tag,
+.kn-name,
+.kn-selector-tag {
+  color: var(--hljs-tag-color, inherit);
+}
+
+/* Diff scopes. */
+
+.kn-addition {
+  color: var(--hljs-addition-color, inherit);
+  background-color: var(--hljs-addition-bg, transparent);
+}
+
+.kn-deletion {
+  color: var(--hljs-deletion-color, inherit);
+  background-color: var(--hljs-deletion-bg, transparent);
+}
+
+/* Markup / prose. */
+
+.kn-bullet {
+  color: var(--hljs-bullet-color, inherit);
+}
+
+.kn-strong {
+  font-weight: bold;
+}
+
+.kn-emphasis {
+  font-style: italic;
+}
+
+.kn-link {
+  color: var(--hljs-link-color, inherit);
+  text-decoration: underline;
+}
+
+/* Operators / punctuation / property: deliberately mapped to inherit
+   (matches upstream's `prettylights-syntax-*` themes which leave these
+   purposely unstyled). Users wanting explicit colours can define
+   `--hljs-operator-color` etc. and add a project-level rule. */
+
+.kn-operator,
+.kn-punctuation,
+.kn-property {
+  color: var(--hljs-operator-color, inherit);
+}

@@ -1,0 +1,146 @@
+/*
+ * @kindly-note/themes-default — dark theme.
+ *
+ * Inspired by the github-dark colour family. Palette colours are not
+ * copyrightable, but this CSS is written from scratch — selectors target
+ * `kn-*` (kindly-note's default class prefix per spec §7.4), the tier-suffix
+ * convention is preserved (spec §5.3: `title.class.inherited` →
+ * `kn-title class_ inherited__`), and the rule structure here is
+ * kindly-note's, not upstream's.
+ *
+ * Usage:
+ *   import '@kindly-note/themes-default/dark.css';
+ *
+ * The .kn root sits on the `<pre><code class="kn ...">` element produced
+ * by `@kindly-note/emitters-html`. Custom properties on `:root` keep the
+ * theme overridable from app code without re-importing.
+ */
+
+:root {
+  --kn-bg: #0d1117;
+  --kn-fg: #c9d1d9;
+  --kn-muted: #8b949e;
+  --kn-subtle: #30363d;
+
+  --kn-keyword: #ff7b72;
+  --kn-title: #d2a8ff;
+  --kn-constant: #79c0ff;
+  --kn-string: #a5d6ff;
+  --kn-built-in: #ffa657;
+  --kn-tag: #7ee787;
+  --kn-section: #1f6feb;
+  --kn-bullet: #f2cc60;
+
+  --kn-deletion-fg: #ffdcd7;
+  --kn-deletion-bg: #67060c;
+  --kn-addition-fg: #aff5b4;
+  --kn-addition-bg: #033a16;
+
+  --kn-font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+    "Courier New", monospace;
+}
+
+.kn {
+  background: var(--kn-bg);
+  color: var(--kn-fg);
+  font-family: var(--kn-font-mono);
+}
+
+/* Most-visible scopes (spec §C, scope-to-class.ts). */
+
+.kn-keyword,
+.kn-doctag {
+  color: var(--kn-keyword);
+}
+
+.kn-built_in,
+.kn-symbol {
+  color: var(--kn-built-in);
+}
+
+.kn-type {
+  color: var(--kn-keyword);
+}
+
+.kn-string,
+.kn-regexp {
+  color: var(--kn-string);
+}
+
+.kn-number,
+.kn-literal,
+.kn-attr,
+.kn-attribute,
+.kn-meta {
+  color: var(--kn-constant);
+}
+
+.kn-comment,
+.kn-quote,
+.kn-code {
+  color: var(--kn-muted);
+  font-style: italic;
+}
+
+/* Title family. The tier-suffix mapping (`title.class.inherited` →
+   `kn-title class_ inherited__`) is preserved from upstream — these
+   selectors composite via the multiple class tokens emitted on a single
+   span. (spec §5.3, §7.4) */
+
+.kn-title,
+.kn-title.class_,
+.kn-title.class_.inherited__,
+.kn-title.function_,
+.kn-class_,
+.kn-function {
+  color: var(--kn-title);
+}
+
+/* Variables / params / properties — left at default fg in the github-dark
+   palette tradition, but call out language_ (`this`, `super`) as a
+   constant. */
+
+.kn-variable.language_ {
+  color: var(--kn-keyword);
+}
+
+.kn-tag,
+.kn-name,
+.kn-selector-tag {
+  color: var(--kn-tag);
+}
+
+/* Diff scopes. */
+
+.kn-addition {
+  color: var(--kn-addition-fg);
+  background-color: var(--kn-addition-bg);
+}
+
+.kn-deletion {
+  color: var(--kn-deletion-fg);
+  background-color: var(--kn-deletion-bg);
+}
+
+/* Markup / prose. */
+
+.kn-bullet {
+  color: var(--kn-bullet);
+}
+
+.kn-strong {
+  font-weight: bold;
+}
+
+.kn-emphasis {
+  font-style: italic;
+}
+
+.kn-link {
+  color: var(--kn-section);
+  text-decoration: underline;
+}
+
+/* Operators / punctuation: deliberately unstyled so they inherit
+   `--kn-fg`. Themes that want to colour them explicitly can override the
+   custom properties or add rules in app CSS. */
