@@ -1,0 +1,17 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": "./src",
+    "outDir": "./dist",
+    "tsBuildInfoFile": "./dist/.tsbuildinfo",
+    "types": [],
+    // The legacy adapter accepts upstream HLJSPlugin objects whose element
+    // hooks reference `HTMLElement`. We pull in lib.dom for type-only
+    // visibility of DOM globals; there is no runtime DOM dependency
+    // (the adapter only passes `el` references through). spec §3.
+    "lib": ["ES2022", "DOM"]
+  },
+  "include": ["src/**/*"],
+  "exclude": ["dist", "tests", "node_modules"],
+  "references": [{ "path": "../core" }]
+}

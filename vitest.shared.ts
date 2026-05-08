@@ -36,6 +36,7 @@ const KINDLY_NOTE_PACKAGES: readonly string[] = [
   'lang-javascript',
   'lang-typescript',
   'themes-default',
+  'legacy-plugin-adapter',
 ];
 
 // Subpath aliases (e.g. `@kindly-note/core/regex` → `packages/core/src/regex.ts`)
