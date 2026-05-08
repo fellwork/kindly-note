@@ -155,6 +155,12 @@ const typescript: LanguageDefinition<unknown> = extendLanguage(javascript, {
   name: 'TypeScript',
   aliases: ['ts', 'tsx', 'mts', 'cts'],
 
+  // spec §1.2 + §10.2 row "supersetOf": TypeScript declares JavaScript as its
+  // superset for the auto-detect tie-breaker (`@kindly-note/auto-detect`). When
+  // TS and JS produce equal relevance on plain-JS code, the parent (JS) wins —
+  // mirrors upstream lang-arduino vs lang-cpp pattern (Scout §6).
+  supersetOf: 'javascript',
+
   // Merge TS-specific keywords with JS's. spec §8.2.2: shallow merge
   // (concat-and-dedupe per key) handled by `extendKeywords` in core.
   extendKeywords: {

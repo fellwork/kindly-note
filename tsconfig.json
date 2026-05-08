@@ -9,6 +9,7 @@
     { "path": "./packages/lang-javascript" },
     { "path": "./packages/lang-typescript" },
     { "path": "./packages/themes-default" },
-    { "path": "./packages/legacy-plugin-adapter" }
+    { "path": "./packages/legacy-plugin-adapter" },
+    { "path": "./packages/auto-detect" }
   ]
 }
