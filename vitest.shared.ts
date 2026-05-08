@@ -35,6 +35,7 @@ const KINDLY_NOTE_PACKAGES: readonly string[] = [
   'lang-json',
   'lang-javascript',
   'lang-typescript',
+  'lang-markdown',
   'themes-default',
   'legacy-plugin-adapter',
   'auto-detect',

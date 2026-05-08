@@ -15,14 +15,14 @@
     },
     "packages/auto-detect": {
       "name": "@kindly-note/auto-detect",
-      "version": "0.0.1",
+      "version": "0.1.0",
       "dependencies": {
-        "@kindly-note/core": "workspace:*",
+        "@kindly-note/core": "^0.1.0",
       },
       "devDependencies": {
-        "@kindly-note/lang-javascript": "workspace:*",
-        "@kindly-note/lang-json": "workspace:*",
-        "@kindly-note/lang-typescript": "workspace:*",
+        "@kindly-note/lang-javascript": "^0.1.0",
+        "@kindly-note/lang-json": "^0.1.0",
+        "@kindly-note/lang-typescript": "^0.1.0",
         "rolldown": "1.0.0",
         "rolldown-plugin-dts": "0.16.0",
         "typescript": "^5.7.2",
@@ -31,12 +31,12 @@
     },
     "packages/browser": {
       "name": "@kindly-note/browser",
-      "version": "0.0.1",
+      "version": "0.1.0",
       "devDependencies": {
-        "@kindly-note/auto-detect": "workspace:*",
-        "@kindly-note/core": "workspace:*",
-        "@kindly-note/emitters-html": "workspace:*",
-        "@kindly-note/lang-json": "workspace:*",
+        "@kindly-note/auto-detect": "^0.1.0",
+        "@kindly-note/core": "^0.1.0",
+        "@kindly-note/emitters-html": "^0.1.0",
+        "@kindly-note/lang-json": "^0.1.0",
         "happy-dom": "^15.11.7",
         "rolldown": "1.0.0",
         "rolldown-plugin-dts": "0.16.0",
@@ -44,8 +44,8 @@
         "vitest": "^2.1.8",
       },
       "peerDependencies": {
-        "@kindly-note/auto-detect": "workspace:*",
-        "@kindly-note/core": "workspace:*",
+        "@kindly-note/auto-detect": "^0.1.0",
+        "@kindly-note/core": "^0.1.0",
       },
       "optionalPeers": [
         "@kindly-note/auto-detect",
@@ -53,7 +53,7 @@
     },
     "packages/core": {
       "name": "@kindly-note/core",
-      "version": "0.0.1",
+      "version": "0.1.0",
       "devDependencies": {
         "rolldown": "1.0.0",
         "rolldown-plugin-dts": "0.16.0",
@@ -63,23 +63,23 @@
     },
     "packages/emitters-html": {
       "name": "@kindly-note/emitters-html",
-      "version": "0.0.1",
+      "version": "0.1.0",
       "devDependencies": {
-        "@kindly-note/core": "workspace:*",
+        "@kindly-note/core": "^0.1.0",
         "rolldown": "1.0.0",
         "rolldown-plugin-dts": "0.16.0",
         "typescript": "^5.7.2",
         "vitest": "^2.1.8",
       },
       "peerDependencies": {
-        "@kindly-note/core": "workspace:*",
+        "@kindly-note/core": "^0.1.0",
       },
     },
     "packages/lang-helpers": {
       "name": "@kindly-note/lang-helpers",
-      "version": "0.0.1",
+      "version": "0.1.0",
       "dependencies": {
-        "@kindly-note/core": "workspace:*",
+        "@kindly-note/core": "^0.1.0",
       },
       "devDependencies": {
         "rolldown": "1.0.0",
@@ -90,14 +90,14 @@
     },
     "packages/lang-javascript": {
       "name": "@kindly-note/lang-javascript",
-      "version": "0.0.1",
+      "version": "0.1.0",
       "dependencies": {
-        "@kindly-note/core": "workspace:*",
-        "@kindly-note/lang-helpers": "workspace:*",
-        "@kindly-note/lang-pack-ecmascript": "workspace:*",
+        "@kindly-note/core": "^0.1.0",
+        "@kindly-note/lang-helpers": "^0.1.0",
+        "@kindly-note/lang-pack-ecmascript": "^0.1.0",
       },
       "devDependencies": {
-        "@kindly-note/emitters-html": "workspace:*",
+        "@kindly-note/emitters-html": "^0.1.0",
         "rolldown": "1.0.0",
         "rolldown-plugin-dts": "0.16.0",
         "typescript": "^5.7.2",
@@ -106,14 +106,30 @@
     },
     "packages/lang-json": {
       "name": "@kindly-note/lang-json",
-      "version": "0.0.1",
+      "version": "0.1.0",
       "dependencies": {
-        "@kindly-note/core": "workspace:*",
-        "@kindly-note/lang-helpers": "workspace:*",
-        "@kindly-note/lang-pack-ecmascript": "workspace:*",
+        "@kindly-note/core": "^0.1.0",
+        "@kindly-note/lang-helpers": "^0.1.0",
+        "@kindly-note/lang-pack-ecmascript": "^0.1.0",
       },
       "devDependencies": {
-        "@kindly-note/emitters-html": "workspace:*",
+        "@kindly-note/emitters-html": "^0.1.0",
+        "rolldown": "1.0.0",
+        "rolldown-plugin-dts": "0.16.0",
+        "typescript": "^5.7.2",
+        "vitest": "^2.1.8",
+      },
+    },
+    "packages/lang-markdown": {
+      "name": "@kindly-note/lang-markdown",
+      "version": "0.1.0",
+      "dependencies": {
+        "@kindly-note/core": "^0.1.0",
+        "@kindly-note/lang-helpers": "^0.1.0",
+      },
+      "devDependencies": {
+        "@kindly-note/emitters-html": "^0.1.0",
+        "@kindly-note/lang-json": "^0.1.0",
         "rolldown": "1.0.0",
         "rolldown-plugin-dts": "0.16.0",
         "typescript": "^5.7.2",
@@ -122,10 +138,10 @@
     },
     "packages/lang-pack-ecmascript": {
       "name": "@kindly-note/lang-pack-ecmascript",
-      "version": "0.0.1",
+      "version": "0.1.0",
       "dependencies": {
-        "@kindly-note/core": "workspace:*",
-        "@kindly-note/lang-helpers": "workspace:*",
+        "@kindly-note/core": "^0.1.0",
+        "@kindly-note/lang-helpers": "^0.1.0",
       },
       "devDependencies": {
         "rolldown": "1.0.0",
@@ -136,15 +152,15 @@
     },
     "packages/lang-typescript": {
       "name": "@kindly-note/lang-typescript",
-      "version": "0.0.1",
+      "version": "0.1.0",
       "dependencies": {
-        "@kindly-note/core": "workspace:*",
-        "@kindly-note/lang-helpers": "workspace:*",
-        "@kindly-note/lang-javascript": "workspace:*",
-        "@kindly-note/lang-pack-ecmascript": "workspace:*",
+        "@kindly-note/core": "^0.1.0",
+        "@kindly-note/lang-helpers": "^0.1.0",
+        "@kindly-note/lang-javascript": "^0.1.0",
+        "@kindly-note/lang-pack-ecmascript": "^0.1.0",
       },
       "devDependencies": {
-        "@kindly-note/emitters-html": "workspace:*",
+        "@kindly-note/emitters-html": "^0.1.0",
         "rolldown": "1.0.0",
         "rolldown-plugin-dts": "0.16.0",
         "typescript": "^5.7.2",
@@ -153,23 +169,23 @@
     },
     "packages/legacy-plugin-adapter": {
       "name": "@kindly-note/legacy-plugin-adapter",
-      "version": "0.0.1",
+      "version": "0.1.0",
       "devDependencies": {
-        "@kindly-note/core": "workspace:*",
-        "@kindly-note/emitters-html": "workspace:*",
-        "@kindly-note/lang-json": "workspace:*",
+        "@kindly-note/core": "^0.1.0",
+        "@kindly-note/emitters-html": "^0.1.0",
+        "@kindly-note/lang-json": "^0.1.0",
         "rolldown": "1.0.0",
         "rolldown-plugin-dts": "0.16.0",
         "typescript": "^5.7.2",
         "vitest": "^2.1.8",
       },
       "peerDependencies": {
-        "@kindly-note/core": "workspace:*",
+        "@kindly-note/core": "^0.1.0",
       },
     },
     "packages/loader-dynamic-import": {
       "name": "@kindly-note/loader-dynamic-import",
-      "version": "0.0.1",
+      "version": "0.1.0",
       "dependencies": {
         "@kindly-note/core": "workspace:*",
       },
@@ -184,7 +200,7 @@
     },
     "packages/loader-fetch": {
       "name": "@kindly-note/loader-fetch",
-      "version": "0.0.1",
+      "version": "0.1.0",
       "dependencies": {
         "@kindly-note/core": "workspace:*",
       },
@@ -198,7 +214,7 @@
     },
     "packages/themes-default": {
       "name": "@kindly-note/themes-default",
-      "version": "0.0.1",
+      "version": "0.1.0",
       "devDependencies": {
         "typescript": "^5.7.2",
         "vitest": "^2.1.8",
@@ -345,6 +361,8 @@
     "@kindly-note/lang-javascript": ["@kindly-note/lang-javascript@workspace:packages/lang-javascript"],
 
     "@kindly-note/lang-json": ["@kindly-note/lang-json@workspace:packages/lang-json"],
+
+    "@kindly-note/lang-markdown": ["@kindly-note/lang-markdown@workspace:packages/lang-markdown"],
 
     "@kindly-note/lang-pack-ecmascript": ["@kindly-note/lang-pack-ecmascript@workspace:packages/lang-pack-ecmascript"],
 
