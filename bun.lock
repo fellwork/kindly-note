@@ -23,6 +23,19 @@
         "vitest": "^2.1.8",
       },
     },
+    "packages/lang-helpers": {
+      "name": "@kindly-note/lang-helpers",
+      "version": "0.0.1",
+      "dependencies": {
+        "@kindly-note/core": "workspace:*",
+      },
+      "devDependencies": {
+        "rolldown": "1.0.0",
+        "rolldown-plugin-dts": "0.16.0",
+        "typescript": "^5.7.2",
+        "vitest": "^2.1.8",
+      },
+    },
   },
   "packages": {
     "@babel/generator": ["@babel/generator@7.29.1", "", { "dependencies": { "@babel/parser": "^7.29.0", "@babel/types": "^7.29.0", "@jridgewell/gen-mapping": "^0.3.12", "@jridgewell/trace-mapping": "^0.3.28", "jsesc": "^3.0.2" } }, "sha512-qsaF+9Qcm2Qv8SRIMMscAvG4O3lJ0F1GuMo5HR/Bp02LopNgnZBC/EkbevHFeGs4ls/oPz9v+Bsmzbkbe+0dUw=="],
@@ -152,6 +165,8 @@
     "@jridgewell/trace-mapping": ["@jridgewell/trace-mapping@0.3.31", "", { "dependencies": { "@jridgewell/resolve-uri": "^3.1.0", "@jridgewell/sourcemap-codec": "^1.4.14" } }, "sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw=="],
 
     "@kindly-note/core": ["@kindly-note/core@workspace:packages/core"],
+
+    "@kindly-note/lang-helpers": ["@kindly-note/lang-helpers@workspace:packages/lang-helpers"],
 
     "@manypkg/find-root": ["@manypkg/find-root@1.1.0", "", { "dependencies": { "@babel/runtime": "^7.5.5", "@types/node": "^12.7.1", "find-up": "^4.1.0", "fs-extra": "^8.1.0" } }, "sha512-mki5uBvhHzO8kYYix/WRy2WX8S3B5wdVSc9D6KcU5lQNglP2yt58/VfLuAK49glRXChosY8ap2oJ1qgma3GUVA=="],
 
