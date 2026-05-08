@@ -1,0 +1,19 @@
+# Force LF line endings for source files. Biome (`biome.json#formatter.lineEnding`)
+# is configured to enforce LF; without this file, Windows checkouts under
+# `core.autocrlf=true` rewrite checked-out files to CRLF, which then fails the
+# `bun run lint` gate. The on-disk repo (and `git ls-files --eol`) already
+# stores these as LF — this just stops the working-tree conversion.
+*.ts          text eol=lf
+*.tsx         text eol=lf
+*.js          text eol=lf
+*.mjs         text eol=lf
+*.cjs         text eol=lf
+*.json        text eol=lf
+*.jsonc       text eol=lf
+*.md          text eol=lf
+*.css         text eol=lf
+*.html        text eol=lf
+*.yml         text eol=lf
+*.yaml        text eol=lf
+.gitignore    text eol=lf
+.gitattributes text eol=lf
