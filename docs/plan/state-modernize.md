@@ -7,10 +7,10 @@
 
 ## Current pointer
 
-- **Phase:** 8 — **Cohort 5 4-way parallel complete.** Five new packages merged: `legacy-plugin-adapter`, `auto-detect`, `loader-dynamic-import`, `loader-fetch`, `themes-default`. Plus the auto-detect Builder added `supersetOf: 'javascript'` to lang-typescript and the loaders Builder added `LanguageLoader` interface + `deserializeLanguage` to core. Main at ~`805c10f` (post-cohort-5 + lockfile regen). **~462 tests across 12 packages, lint+typecheck clean.**
-- **Active artifacts:** 11 build manifests (`c1`/`c2a`/`c2b`/`c3a`/`c3b`/`c4`/`c5a`/`c5b`/`c5c`/`c5d`) — cumulative ~60 documented open questions; none silent.
-- **Architectural status:** Spec §0 shifts #1-#5 all validated. Spec §8.2 keystone validated. Spec §13 (markdown rendering) still v1+ scope, not implemented. Browser package + v0 release rehearsal still pending.
-- **Next:** Cohort 5e (browser package — DOM bindings via `attachToDOM`, `highlightAll`, `highlightElement`) → v0 release rehearsal (READMEs, version bump, changeset dry-run).
+- **Phase:** 9 — **🟢 V0 surface complete.** 13 packages on main at `e651378`. **495 tests across 13 packages, lint+typecheck clean.** Cohort 5e (browser) was the last v0 package; first one to use happy-dom Vitest env.
+- **Active artifacts:** 12 build manifests (`c1`/`c2a`/`c2b`/`c3a`/`c3b`/`c4`/`c5a`/`c5b`/`c5c`/`c5d`/`c5e`) — cumulative ~63 documented open questions; none silent.
+- **Architectural status:** Spec §0 shifts #1-#5 all validated. Spec §8.2 keystone validated. Spec §13 (markdown rendering) still v1+ scope, not implemented. **All v0 packages shipped.**
+- **Next:** V0 release rehearsal — per-package READMEs, root README polish, version bump 0.0.1→0.1.0 via Changesets, `bun run release --dry-run` validation, optional verdaccio publish smoke test, CHANGELOG generation. Then v0.1.0 publish.
 
 ## Locked-in scope decisions (round 0)
 
@@ -48,6 +48,8 @@
 | 8c | 2 | Builder C5c (`general-purpose`) | `feat/loaders` (4 commits): `@kindly-note/loader-{fetch,dynamic-import}` (41 tests) + `LanguageLoader` interface + `deserializeLanguage` + `LanguageLoadError` added to core. Wire format `'kindly-note/v0'`-versioned. STATUS: DONE; `HighlighterWithLoader.highlightAsync` deferred to follow-up. | 8 |
 | 8d | 2 | Builder C5d (`general-purpose`) | `feat/themes-default` (4 commits): `@kindly-note/themes-default` (CSS-only, 118 smoke tests). 3 themes (dark/light/high-contrast) + `compat-hljs.css` (variable-mapping shim) + tokens.json. STATUS: DONE. | 8 |
 | 8-merge | — | Team Lead | Sequenced merges in order C5d (FF) → C5a → C5b → C5c (each 3-way merge with conflicts on `tsconfig.json#references` and `vitest.shared.ts#KINDLY_NOTE_PACKAGES` — both single-line array additions per branch — and `bun.lock`). All conflicts resolved by combining entries. Bun install regenerated transitive deps. Workspace: ~462 tests across 12 packages on main, lint+typecheck clean. | 8 |
+| 9 | 2 | Builder C5e (`general-purpose`, harness-consolidated) | `feat/browser` (5 commits): `@kindly-note/browser` (33 tests). `highlightElement` / `highlightAll` / `attachToDOM` / `languageFromClass`. First package on `happy-dom` Vitest env. STATUS: DONE; one follow-up flagged: `Highlighter.plugins` accessed via duck-typed cast (private field); recommended next-cohort fix to promote it to a public read-only iterator. | 9 |
+| 9-merge | — | Team Lead | FF-merged feat/browser. **V0 surface complete: 13 packages, 495 tests, lint+typecheck clean.** Main at `e651378`. | 9 |
 
 ## Open obligations
 
@@ -67,9 +69,11 @@
 - [x] Builder cohort 3b — `@kindly-note/lang-pack-ecmascript` + `@kindly-note/lang-json` shipped, merged. Matcher validated end-to-end on real JSON.
 - [x] **Builder cohort 4 — keystone validated.** lang-javascript + lang-typescript merged. extendLanguage ref-substitution walker added to core. Workspace src-resolution config landed.
 - [x] Builder cohort 5 (4-way parallel) — `legacy-plugin-adapter` + `auto-detect` + `loader-{fetch,dynamic-import}` + `themes-default` shipped and merged
-- [ ] Builder cohort 5e — `@kindly-note/browser` (DOM bindings: `highlightAll`, `highlightElement`, `attachToDOM`); peer-optional dependency on auto-detect for the auto-detect path
-- [ ] V0 close-out: changesets release dry-run, README polish, package descriptions, README.md per package, version bump from 0.0.x to 0.1.0
+- [x] Builder cohort 5e — `@kindly-note/browser` shipped and merged
+- [ ] V0 release rehearsal: per-package READMEs (13), root README polish, version bump 0.0.1→0.1.0 via Changesets, `bun run release --dry-run`, optional verdaccio publish smoke test, CHANGELOG.md generation
+- [ ] V0.1.0 publish (depends on user — actually push to npm or hold for review)
 - [ ] V1+ markdown ring: `lang-markdown`, `lang-markdown-gfm`, `emitters-markdown`, `emitters-mdast`, `render-markdown`, `integrations-{marked,remark}` (per round-3 user decision)
+- [ ] Promote `Highlighter.plugins` to a public read-only iterator (cohort-5e follow-up; needed for future cohorts that want introspection without duck-typed casts)
 - [ ] Long tail: ~190 language ports (mechanical, after v0 ships)
 
 ## Lessons captured this session
