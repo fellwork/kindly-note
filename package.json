@@ -1,0 +1,30 @@
+{
+  "name": "kindly-note-monorepo",
+  "version": "0.0.0",
+  "private": true,
+  "description": "kindly-note — a typed, modern, ESM-only fork of highlight.js. Monorepo root.",
+  "type": "module",
+  "license": "BSD-3-Clause",
+  "packageManager": "bun@1.3.8",
+  "engines": {
+    "bun": ">=1.3.0"
+  },
+  "workspaces": ["packages/*"],
+  "scripts": {
+    "build": "bun run --filter '*' build",
+    "test": "bun run --filter '*' test",
+    "typecheck": "tsc -b",
+    "lint": "biome check .",
+    "format": "biome format --write .",
+    "changeset": "changeset",
+    "release": "changeset publish"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
+    "@changesets/cli": "^2.27.10",
+    "rolldown": "1.0.0",
+    "rolldown-plugin-dts": "0.16.0",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  }
+}
