@@ -155,3 +155,7 @@ packages/*/dist/
 .idea/
 .vscode/*
 !.vscode/extensions.json
+
+# Local verdaccio token (release rehearsal)
+.npmrc
+
