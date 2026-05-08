@@ -7,6 +7,8 @@
     { "path": "./packages/lang-pack-ecmascript" },
     { "path": "./packages/lang-json" },
     { "path": "./packages/lang-javascript" },
-    { "path": "./packages/lang-typescript" }
+    { "path": "./packages/lang-typescript" },
+    { "path": "./packages/loader-dynamic-import" },
+    { "path": "./packages/loader-fetch" }
   ]
 }
