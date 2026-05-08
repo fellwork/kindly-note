@@ -13,6 +13,22 @@
         "vitest": "^2.1.8",
       },
     },
+    "packages/auto-detect": {
+      "name": "@kindly-note/auto-detect",
+      "version": "0.0.1",
+      "dependencies": {
+        "@kindly-note/core": "workspace:*",
+      },
+      "devDependencies": {
+        "@kindly-note/lang-javascript": "workspace:*",
+        "@kindly-note/lang-json": "workspace:*",
+        "@kindly-note/lang-typescript": "workspace:*",
+        "rolldown": "1.0.0",
+        "rolldown-plugin-dts": "0.16.0",
+        "typescript": "^5.7.2",
+        "vitest": "^2.1.8",
+      },
+    },
     "packages/core": {
       "name": "@kindly-note/core",
       "version": "0.0.1",
@@ -113,6 +129,22 @@
         "vitest": "^2.1.8",
       },
     },
+    "packages/legacy-plugin-adapter": {
+      "name": "@kindly-note/legacy-plugin-adapter",
+      "version": "0.0.1",
+      "devDependencies": {
+        "@kindly-note/core": "workspace:*",
+        "@kindly-note/emitters-html": "workspace:*",
+        "@kindly-note/lang-json": "workspace:*",
+        "rolldown": "1.0.0",
+        "rolldown-plugin-dts": "0.16.0",
+        "typescript": "^5.7.2",
+        "vitest": "^2.1.8",
+      },
+      "peerDependencies": {
+        "@kindly-note/core": "workspace:*",
+      },
+    },
     "packages/loader-dynamic-import": {
       "name": "@kindly-note/loader-dynamic-import",
       "version": "0.0.1",
@@ -138,6 +170,14 @@
         "@kindly-note/emitters-html": "workspace:*",
         "rolldown": "1.0.0",
         "rolldown-plugin-dts": "0.16.0",
+        "typescript": "^5.7.2",
+        "vitest": "^2.1.8",
+      },
+    },
+    "packages/themes-default": {
+      "name": "@kindly-note/themes-default",
+      "version": "0.0.1",
+      "devDependencies": {
         "typescript": "^5.7.2",
         "vitest": "^2.1.8",
       },
@@ -270,6 +310,8 @@
 
     "@jridgewell/trace-mapping": ["@jridgewell/trace-mapping@0.3.31", "", { "dependencies": { "@jridgewell/resolve-uri": "^3.1.0", "@jridgewell/sourcemap-codec": "^1.4.14" } }, "sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw=="],
 
+    "@kindly-note/auto-detect": ["@kindly-note/auto-detect@workspace:packages/auto-detect"],
+
     "@kindly-note/core": ["@kindly-note/core@workspace:packages/core"],
 
     "@kindly-note/emitters-html": ["@kindly-note/emitters-html@workspace:packages/emitters-html"],
@@ -284,9 +326,13 @@
 
     "@kindly-note/lang-typescript": ["@kindly-note/lang-typescript@workspace:packages/lang-typescript"],
 
+    "@kindly-note/legacy-plugin-adapter": ["@kindly-note/legacy-plugin-adapter@workspace:packages/legacy-plugin-adapter"],
+
     "@kindly-note/loader-dynamic-import": ["@kindly-note/loader-dynamic-import@workspace:packages/loader-dynamic-import"],
 
     "@kindly-note/loader-fetch": ["@kindly-note/loader-fetch@workspace:packages/loader-fetch"],
+
+    "@kindly-note/themes-default": ["@kindly-note/themes-default@workspace:packages/themes-default"],
 
     "@manypkg/find-root": ["@manypkg/find-root@1.1.0", "", { "dependencies": { "@babel/runtime": "^7.5.5", "@types/node": "^12.7.1", "find-up": "^4.1.0", "fs-extra": "^8.1.0" } }, "sha512-mki5uBvhHzO8kYYix/WRy2WX8S3B5wdVSc9D6KcU5lQNglP2yt58/VfLuAK49glRXChosY8ap2oJ1qgma3GUVA=="],
 
