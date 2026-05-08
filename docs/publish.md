@@ -1,8 +1,39 @@
 # Publishing kindly-note to npm
 
-The `@kindly-note` organization is reserved on npm. v0.1.0 is publish-ready.
+The `@kindly-note` organization is reserved on npm. v0.1.0 is **published**. v0.2.0+ ships via the **GitHub release workflow** (`.github/workflows/release.yml`); manual publish is a fallback.
 
-This runbook documents the exact sequence to publish.
+This runbook documents both paths.
+
+---
+
+## Automated path (recommended for v0.2.0+)
+
+`.github/workflows/release.yml` runs on every push to `main`:
+
+- **If pending changesets exist** (`.changeset/*.md`) — the workflow opens (or updates) a "Version Packages" PR that consumes the changesets, bumps versions, and regenerates `CHANGELOG.md` per package.
+- **When that PR merges to main** — the workflow detects no pending changesets but versions ahead of npm, and **publishes**.
+
+### One-time GitHub setup
+
+1. **Generate an Automation-type npm token** at https://www.npmjs.com/settings/<your-username>/tokens.
+
+   Settings → Access Tokens → Generate New Token → **Automation** (NOT "Publish" — Automation bypasses 2FA, which the workflow needs).
+
+2. **Add the token to GitHub repo secrets**:
+
+   Repo → Settings → Secrets and variables → Actions → New repository secret:
+   - Name: `NPM_TOKEN`
+   - Value: paste the token from step 1
+
+3. **Verify org membership**: the npm account that generated the token must be a member of the `@kindly-note` org with publish rights. Check via `npm org ls kindly-note`.
+
+After this, every PR that adds a changeset gets bundled into the next "Version Packages" PR; merging that publishes automatically.
+
+---
+
+## Manual fallback
+
+If the workflow fails or you need a bespoke release:
 
 ---
 
@@ -85,7 +116,7 @@ For 0.1.1+ patches or 0.2.0+ minors:
 
 ---
 
-## Lessons from the v0.1.0 rehearsal (caught and fixed before real publish)
+## Lessons from the v0.1.0 rehearsal + first publish (caught + fixed)
 
 1. **License templating bug** — all 13 packages had `"license": "BSD-3-Clause"` while the root LICENSE is MIT. Fixed; all now say MIT.
 
@@ -96,6 +127,10 @@ For 0.1.1+ patches or 0.2.0+ minors:
 3. **Hardcoded version assertions in tests** — `themes-default/tests/themes.test.ts` had `expect(pkg.version).toBe('0.0.1')` which broke after the version bump. Fix: `toMatch(/^\d+\.\d+\.\d+/)`. Apply this convention to any future package-shape test.
 
 4. **Changesets `minor` on `0.0.x` may produce `1.0.0`** — three packages bumped to 1.0.0 instead of 0.1.0 on a `minor` changeset; cause unclear. Fix was manual correction. Worth checking the bumped versions every time and overriding if anomalous.
+
+5. **2FA blocks `changeset publish`** — first publish attempt failed `EOTP` for every package. Two solutions: pass `--otp=<code>` per command (tight 30s window), or use an **Automation token** from npm (bypasses 2FA — the path the GitHub release workflow takes).
+
+6. **`npm install` 404 immediately after publish** — npm CLI's local cache stores 404s during the publish window. `npm cache clean --force` clears it. The version-specific URL (`/@scope/pkg/X.Y.Z`) propagates instantly; package-listing URL (`/@scope%2Fpkg`) takes minutes — useful signal when verifying.
 
 ---
 

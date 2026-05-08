@@ -1,0 +1,5 @@
+# Pre-push: run typecheck + workspace tests before any push.
+# Lint runs at pre-commit (lint-staged); tests + typecheck are heavier so they
+# only run at push time.
+bun run typecheck
+bun run test

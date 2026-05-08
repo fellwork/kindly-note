@@ -18,7 +18,24 @@ cd kindly-note
 bun install
 ```
 
-This installs all workspace dependencies and links sibling packages via `workspace:*`.
+This installs all workspace dependencies and runs `husky` to install the git hooks (via the `prepare` script). After this:
+
+- **`pre-commit`** runs `lint-staged` — Biome auto-formats and checks staged TypeScript / JSON / Markdown files. Fast (only touches what you edited).
+- **`pre-push`** runs `bun run typecheck && bun run test` across the whole workspace. Slower (~10-15 s) but catches integration breaks before they hit CI.
+
+Bypass hooks for a one-off (e.g. work-in-progress commit) with `git commit --no-verify` / `git push --no-verify`. Don't make this a habit — CI will catch what you skip.
+
+## CI + release
+
+`.github/workflows/ci.yml` runs on every PR and push to `main`: install → lint → typecheck → test → build. PRs can't merge red.
+
+`.github/workflows/release.yml` is Changesets-driven:
+
+1. Add a changeset with your PR: `bun x changeset` (interactive). Pick affected packages and the bump type (patch/minor/major). Commit the generated `.changeset/*.md` file.
+2. After your PR merges to `main`, the release workflow opens a "Version Packages" PR that consumes pending changesets and bumps versions.
+3. Merging the "Version Packages" PR publishes the new versions to npm via `NPM_TOKEN`.
+
+See `docs/publish.md` for the full publish runbook (including the one-time `NPM_TOKEN` setup).
 
 ## Running tests, typecheck, lint, and build
 

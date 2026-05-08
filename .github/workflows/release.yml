@@ -1,0 +1,88 @@
+name: Release
+
+# Triggered on every push to main. Two outcomes:
+#
+#   (a) Pending changesets exist (`.changeset/*.md`) — action opens / updates a
+#       "Version Packages" PR that consumes the changesets, bumps versions,
+#       and regenerates CHANGELOG.md per package.
+#
+#   (b) "Version Packages" PR was just merged (no pending changesets, but
+#       package.json versions are ahead of npm) — action publishes to npm
+#       under the @kindly-note scope using NPM_TOKEN.
+#
+# The npm token is an "Automation" type token from npmjs.com (Settings →
+# Access Tokens → Generate new token → Automation). Stored as a repo secret
+# named NPM_TOKEN. Automation tokens bypass 2FA.
+
+on:
+  push:
+    branches: [main]
+
+# changesets/action needs to write contents (commits) and pull-requests.
+permissions:
+  contents: write
+  pull-requests: write
+  id-token: write
+
+# Only one release run at a time.
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Version + publish
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout (fetch full history for changesets)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.8
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Lint
+        run: bun run lint
+
+      - name: Typecheck
+        run: bun run typecheck
+
+      - name: Test
+        run: bun run test
+
+      - name: Build (produces dist/ artifacts that get tarballed)
+        run: bun run build
+
+      - name: Configure npm auth for publish
+        run: |
+          echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > $HOME/.npmrc
+          echo "registry=https://registry.npmjs.org/" >> $HOME/.npmrc
+          echo "@kindly-note:registry=https://registry.npmjs.org/" >> $HOME/.npmrc
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Create Release Pull Request or Publish
+        id: changesets
+        uses: changesets/action@v1
+        with:
+          # If pending changesets are present, this command runs. It bumps
+          # versions and consumes changesets, then commits to the PR branch.
+          version: bun x changeset version
+
+          # If no pending changesets but versions in package.json are ahead
+          # of npm, this command runs. It publishes the new versions.
+          publish: bun x changeset publish
+
+          # PR title + commit message
+          title: "Version packages"
+          commit: "chore: version packages"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
