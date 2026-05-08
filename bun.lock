@@ -113,6 +113,14 @@
         "vitest": "^2.1.8",
       },
     },
+    "packages/themes-default": {
+      "name": "@kindly-note/themes-default",
+      "version": "0.0.1",
+      "devDependencies": {
+        "typescript": "^5.7.2",
+        "vitest": "^2.1.8",
+      },
+    },
   },
   "packages": {
     "@babel/generator": ["@babel/generator@7.29.1", "", { "dependencies": { "@babel/parser": "^7.29.0", "@babel/types": "^7.29.0", "@jridgewell/gen-mapping": "^0.3.12", "@jridgewell/trace-mapping": "^0.3.28", "jsesc": "^3.0.2" } }, "sha512-qsaF+9Qcm2Qv8SRIMMscAvG4O3lJ0F1GuMo5HR/Bp02LopNgnZBC/EkbevHFeGs4ls/oPz9v+Bsmzbkbe+0dUw=="],
@@ -254,6 +262,8 @@
     "@kindly-note/lang-pack-ecmascript": ["@kindly-note/lang-pack-ecmascript@workspace:packages/lang-pack-ecmascript"],
 
     "@kindly-note/lang-typescript": ["@kindly-note/lang-typescript@workspace:packages/lang-typescript"],
+
+    "@kindly-note/themes-default": ["@kindly-note/themes-default@workspace:packages/themes-default"],
 
     "@manypkg/find-root": ["@manypkg/find-root@1.1.0", "", { "dependencies": { "@babel/runtime": "^7.5.5", "@types/node": "^12.7.1", "find-up": "^4.1.0", "fs-extra": "^8.1.0" } }, "sha512-mki5uBvhHzO8kYYix/WRy2WX8S3B5wdVSc9D6KcU5lQNglP2yt58/VfLuAK49glRXChosY8ap2oJ1qgma3GUVA=="],
 

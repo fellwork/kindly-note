@@ -35,6 +35,7 @@ const KINDLY_NOTE_PACKAGES: readonly string[] = [
   'lang-json',
   'lang-javascript',
   'lang-typescript',
+  'themes-default',
 ];
 
 // Subpath aliases (e.g. `@kindly-note/core/regex` → `packages/core/src/regex.ts`)
