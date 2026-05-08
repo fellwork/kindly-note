@@ -91,7 +91,7 @@ sanity (illegal handling, empty containers, number variants). See
 
 ## License
 
-BSD-3-Clause. See [LICENSE](../../LICENSE).
+MIT. See [LICENSE](../../LICENSE).
 
 <!--
 Co-Authored-By: Claude Opus 4.7 (1M context) <noreply@anthropic.com>

@@ -2,7 +2,7 @@
   "name": "@kindly-note/browser",
   "version": "0.0.1",
   "description": "DOM bindings for kindly-note. Three exports: highlightAll, highlightElement, attachToDOM. Tree-shaken away on Workers/Edge. spec §1.2.",
-  "license": "BSD-3-Clause",
+  "license": "MIT",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

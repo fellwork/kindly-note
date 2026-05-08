@@ -2,7 +2,7 @@
   "name": "@kindly-note/legacy-plugin-adapter",
   "version": "0.0.1",
   "description": "Adapter that wraps an upstream highlight.js-shaped HLJSPlugin (six legacy before:* / after:* hooks) into a modern @kindly-note/core Plugin. Mutation semantics quarantined inside the adapter; the modern protocol stays pure.",
-  "license": "BSD-3-Clause",
+  "license": "MIT",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

@@ -117,6 +117,6 @@ v0. Default-exports a deep-frozen `LanguageDefinition`. Aliases `ts`, `tsx`,
 
 ## License
 
-BSD-3-Clause. See [LICENSE](../../LICENSE).
+MIT. See [LICENSE](../../LICENSE).
 
 Co-Authored-By: Claude Opus 4.7 (1M context) <noreply@anthropic.com>

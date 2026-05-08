@@ -116,6 +116,6 @@ repo's changeset workflow.
 
 ## License
 
-BSD-3-Clause. See the repo root for the full text.
+MIT. See the repo root for the full text.
 
 Co-Authored-By: Claude Opus 4.7 (1M context) <noreply@anthropic.com>

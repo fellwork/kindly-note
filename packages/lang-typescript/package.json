@@ -2,7 +2,7 @@
   "name": "@kindly-note/lang-typescript",
   "version": "0.0.1",
   "description": "TypeScript language definition for kindly-note. Aliases: ts, tsx. Default-exports a deep-frozen LanguageDefinition built via the typed `extendLanguage()` keystone API on top of @kindly-note/lang-javascript.",
-  "license": "BSD-3-Clause",
+  "license": "MIT",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

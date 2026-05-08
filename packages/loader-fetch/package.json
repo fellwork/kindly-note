@@ -2,7 +2,7 @@
   "name": "@kindly-note/loader-fetch",
   "version": "0.0.1",
   "description": "Fetch-based language loader for kindly-note. Pulls serialized JSON LanguageDefinitions from a URL prefix. Workers/Edge friendly. spec §4.2.3.",
-  "license": "BSD-3-Clause",
+  "license": "MIT",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

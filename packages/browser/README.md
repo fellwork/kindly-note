@@ -135,7 +135,7 @@ upstream's `hljs.highlightAll()`, `hljs.highlightElement(el)`, and the
 
 ## License
 
-BSD-3-Clause.
+MIT.
 
 ---
 

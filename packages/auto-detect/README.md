@@ -116,7 +116,7 @@ and the absence of a built-in plaintext fallback), and verification evidence.
 
 ## License
 
-BSD-3-Clause.
+MIT.
 
 ---
 

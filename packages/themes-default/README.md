@@ -107,6 +107,6 @@ v0.0.1. Ships in cohort 5d of the kindly-note modernize track ([build manifest](
 
 ## License
 
-BSD-3-Clause.
+MIT.
 
 Co-Authored-By: Claude Opus 4.7 (1M context) <noreply@anthropic.com>

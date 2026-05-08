@@ -2,7 +2,7 @@
   "name": "@kindly-note/core",
   "version": "0.0.1",
   "description": "Engine, compiler, parser loop, registry, plugin pipeline, and types for kindly-note. Zero language data, zero DOM, zero Node built-ins.",
-  "license": "BSD-3-Clause",
+  "license": "MIT",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

@@ -2,7 +2,7 @@
   "name": "@kindly-note/loader-dynamic-import",
   "version": "0.0.1",
   "description": "Dynamic-import-based language loader for kindly-note. Uses native dynamic import() to load @kindly-note/lang-* packages. Works on Node, modern browsers, Deno, Bun. spec §4.2.2.",
-  "license": "BSD-3-Clause",
+  "license": "MIT",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

@@ -2,7 +2,7 @@
   "name": "@kindly-note/lang-pack-ecmascript",
   "version": "0.0.1",
   "description": "Shared mode helpers and constant lists for the ECMAScript family (JS/TS/CoffeeScript/LiveScript/JSON). Pure data + factory functions; deep-frozen.",
-  "license": "BSD-3-Clause",
+  "license": "MIT",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

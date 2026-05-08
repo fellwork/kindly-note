@@ -2,7 +2,7 @@
   "name": "@kindly-note/themes-default",
   "version": "0.0.1",
   "description": "First-party CSS theme set for kindly-note: dark, light, high-contrast — plus an opt-in compat layer that lets users keep their existing hljs-* themes. CSS-only.",
-  "license": "BSD-3-Clause",
+  "license": "MIT",
   "type": "module",
   "exports": {
     ".": {

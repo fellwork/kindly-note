@@ -129,7 +129,7 @@ v0, in active development. Public surface is stable per
 
 ## License
 
-BSD-3-Clause.
+MIT.
 
 ---
 

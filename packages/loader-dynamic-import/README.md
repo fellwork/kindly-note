@@ -100,7 +100,7 @@ v0. Public API is stable for the v0 surface. See spec §4.2.2 and the cohort-5c 
 
 ## License
 
-BSD-3-Clause.
+MIT.
 
 <!--
 Co-Authored-By: Claude Opus 4.7 (1M context) <noreply@anthropic.com>

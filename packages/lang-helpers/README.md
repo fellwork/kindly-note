@@ -121,7 +121,7 @@ additions (e.g. `hashComment`, `underscoreTitleMode`, `MATCH_NOTHING_RE`,
 
 ## License
 
-BSD-3-Clause.
+MIT.
 
 ---
 

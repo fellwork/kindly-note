@@ -2,7 +2,7 @@
   "name": "@kindly-note/emitters-html",
   "version": "0.0.1",
   "description": "Default HTML-string emitter for kindly-note. Tiered scope-to-class mapping with `kn-` default prefix.",
-  "license": "BSD-3-Clause",
+  "license": "MIT",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

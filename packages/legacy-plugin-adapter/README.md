@@ -120,6 +120,6 @@ unmodified on browsers, Node, Deno, Bun, and Workers/Edge.
 
 ## License
 
-BSD-3-Clause — see [LICENSE](../../LICENSE).
+MIT — see [LICENSE](../../LICENSE).
 
 Co-Authored-By: Claude Opus 4.7 (1M context) <noreply@anthropic.com>

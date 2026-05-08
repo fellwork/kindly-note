@@ -2,7 +2,7 @@
   "name": "@kindly-note/lang-javascript",
   "version": "0.0.1",
   "description": "JavaScript language definition for kindly-note. Aliases: js, jsx, mjs, cjs. Default-exports a deep-frozen LanguageDefinition with typed JavaScriptExtensionPoints for downstream extenders (TypeScript, CoffeeScript).",
-  "license": "BSD-3-Clause",
+  "license": "MIT",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
