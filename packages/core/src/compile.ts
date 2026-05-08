@@ -38,8 +38,21 @@ export interface CompiledLanguage {
 /**
  * Per-mode compiled artifact. Mirrors upstream CompiledMode but immutable.
  *
- * v0 keeps this lean — the matcher loop in `internal/matcher.ts` reads what
- * it needs. Later cohorts add multi-regex matchers, terminator strings, etc.
+ * Cohort 3a deepens the matcher; pre-computed fields added here are read-only
+ * artifacts used by `internal/matcher.ts` to drive the parser without
+ * re-compiling regexes per highlight call. Spec §9.4.
+ *
+ * Field additions over cohort 1 (all readonly, additive):
+ *   - `beginPattern`/`endPattern`: source-string forms of begin/end (kept so
+ *     parent unions can compose them via union without parsing the RegExp).
+ *   - `terminatorEnd`: this mode's effective end pattern as a source string,
+ *     including `endsWithParent` propagation. Used to build the parent's
+ *     terminator union. (Mirrors upstream `cmode.terminatorEnd`.)
+ *   - `endSameAsBegin`: forwarded from the source so the matcher can
+ *     synthesise a literal end regex from the matched begin lexeme at
+ *     runtime.
+ *   - `keywordPatternRe`: the lexeme tokenizer regex used to find keyword
+ *     candidates in a buffer. Mirrors upstream `cmode.keywordPatternRe`.
  */
 export interface CompiledMode {
   readonly scope?: string;
@@ -49,6 +62,7 @@ export interface CompiledMode {
   readonly matchRe?: RegExp;
   readonly illegalRe?: RegExp;
   readonly keywords?: KeywordDict;
+  readonly keywordPatternRe?: RegExp;
   readonly contains: readonly CompiledMode[];
   readonly subLanguage?: string | readonly string[];
   readonly relevance: number;
@@ -59,8 +73,21 @@ export interface CompiledMode {
   readonly skip: boolean;
   readonly endsParent: boolean;
   readonly endsWithParent: boolean;
+  readonly endSameAsBegin: boolean;
   readonly beginScope?: string | ScopeMap;
   readonly endScope?: string | ScopeMap;
+  /** Source-string form of the begin pattern (for capture in parent union). */
+  readonly beginPattern?: string;
+  /** Source-string form of the end pattern (for capture in parent union). */
+  readonly endPattern?: string;
+  /**
+   * Effective end-source for this mode in the context of its parent —
+   * includes `endsWithParent` propagation. Empty string when the mode has no
+   * end and does not propagate. Mirrors upstream `terminatorEnd`. Spec §9.4.
+   */
+  readonly terminatorEnd: string;
+  /** Whether `caseInsensitive` was applied during regex compilation. */
+  readonly caseInsensitive: boolean;
 }
 
 // ---------------------------------------------------------------------------
@@ -83,6 +110,7 @@ export function compileLanguage(def: LanguageDefinition<unknown>): CompiledLangu
       illegal: def.illegal,
     },
     undefined,
+    undefined,
     compilerExtensions,
     def.caseInsensitive ?? false,
   );
@@ -103,6 +131,7 @@ export function compileLanguage(def: LanguageDefinition<unknown>): CompiledLangu
 function compileMode(
   mode: Mode,
   parent: Mode | undefined,
+  parentCompiled: CompiledMode | undefined,
   exts: readonly CompilerExt[],
   caseInsensitive: boolean,
 ): CompiledMode {
@@ -115,30 +144,85 @@ function compileMode(
     if (result !== undefined) mutable = result;
   }
 
-  const beginPattern = pickPattern(mutable.begin ?? mutable.match);
-  const endPattern = pickPattern(mutable.end);
+  const rawBeginPattern = pickPattern(mutable.begin ?? mutable.match);
+  const rawEndPattern = pickPattern(mutable.end);
   const illegalPattern = pickPattern(mutable.illegal);
   const matchPattern = pickPattern(mutable.match);
 
   // Respect beginKeywords by treating them as an alternation of literals
   // — anchored match for the keyword set. spec compatibility note: upstream
   // does the same in mode_compiler beginKeywords expansion.
-  let effectiveBeginRe: RegExp | undefined;
+  let effectiveBeginPattern: string | undefined;
   if (mutable.beginKeywords !== undefined && mutable.beginKeywords !== '') {
     const words = mutable.beginKeywords.split(/\s+/).filter((w) => w.length > 0);
     const alt = words.map(escapeForRegex).join('|');
-    effectiveBeginRe = compileRe(`(?:${alt})\\b`, caseInsensitive);
-  } else if (beginPattern !== undefined) {
-    effectiveBeginRe = compileRe(beginPattern, caseInsensitive);
+    effectiveBeginPattern = `(?:${alt})\\b`;
+  } else if (rawBeginPattern !== undefined) {
+    effectiveBeginPattern = rawBeginPattern;
   }
+  const effectiveBeginRe =
+    effectiveBeginPattern !== undefined ? compileRe(effectiveBeginPattern, caseInsensitive) : undefined;
+
+  // We construct the compiled node as a mutable shape, then freeze. This is
+  // necessary because the parent-aware `terminatorEnd` propagation needs the
+  // pre-computed beginPattern/endPattern of *this* mode, but the children's
+  // terminatorEnd computations need *this* mode's terminatorEnd as their
+  // parent's. Compute self first, then children, then assemble.
+
+  // Spec §9.4 alignment with upstream `mode_compiler.js`:
+  //   - if no begin and we're nested inside a parent, default begin is /\B|\b/.
+  //   - if no end AND not endsWithParent, default end is /\B|\b/.
+  // For top-level (parent === undefined) we leave beginPattern undefined; the
+  // root mode never has its own begin (its `contains` define begin candidates).
+  let beginPatternForUse: string | undefined = effectiveBeginPattern;
+  let endPatternForUse: string | undefined = rawEndPattern;
+  if (parent !== undefined) {
+    if (beginPatternForUse === undefined) beginPatternForUse = '\\B|\\b';
+    if (endPatternForUse === undefined && mutable.endsWithParent !== true) {
+      endPatternForUse = '\\B|\\b';
+    }
+  }
+
+  // terminatorEnd: this mode's effective end source for use in its PARENT's
+  // begin/end union. When `endsWithParent` is true, append the parent's
+  // terminatorEnd via `|`. Mirrors upstream lib/mode_compiler.js:343-346.
+  let terminatorEnd = endPatternForUse ?? '';
+  if (
+    mutable.endsWithParent === true &&
+    parentCompiled !== undefined &&
+    parentCompiled.terminatorEnd !== ''
+  ) {
+    terminatorEnd += (terminatorEnd !== '' ? '|' : '') + parentCompiled.terminatorEnd;
+  }
+
+  const keywords = mutable.keywords !== undefined ? buildKeywordDict(mutable.keywords) : undefined;
+  const keywordPatternRe = keywords !== undefined ? compileKeywordPatternRe(mutable, caseInsensitive) : undefined;
+
+  // Build a partial CompiledMode for the parentCompiled-of-children link.
+  // We assemble children with this partial, then construct the final frozen
+  // node. The partial must include `terminatorEnd` (the only field children
+  // read) and other readonly fields (since the type is fully readonly we
+  // produce a coerced shape).
+  const partial: CompiledMode = Object.freeze({
+    contains: Object.freeze([] as readonly CompiledMode[]),
+    relevance: mutable.relevance ?? 1,
+    excludeBegin: mutable.excludeBegin ?? false,
+    excludeEnd: mutable.excludeEnd ?? false,
+    returnBegin: mutable.returnBegin ?? false,
+    returnEnd: mutable.returnEnd ?? false,
+    skip: mutable.skip ?? false,
+    endsParent: mutable.endsParent ?? false,
+    endsWithParent: mutable.endsWithParent ?? false,
+    endSameAsBegin: mutable.endSameAsBegin ?? false,
+    terminatorEnd,
+    caseInsensitive,
+  });
 
   const compiledContains: readonly CompiledMode[] = Object.freeze(
     (mutable.contains ?? [])
       .filter((c): c is Mode => c !== 'self')
-      .map((c) => compileMode(c, mutable, exts, caseInsensitive)),
+      .map((c) => compileMode(c, mutable, partial, exts, caseInsensitive)),
   );
-
-  const keywords = mutable.keywords !== undefined ? buildKeywordDict(mutable.keywords) : undefined;
 
   const compiled: CompiledMode = {
     contains: compiledContains,
@@ -150,10 +234,16 @@ function compileMode(
     skip: mutable.skip ?? false,
     endsParent: mutable.endsParent ?? false,
     endsWithParent: mutable.endsWithParent ?? false,
+    endSameAsBegin: mutable.endSameAsBegin ?? false,
+    terminatorEnd,
+    caseInsensitive,
     ...(typeof mutable.scope === 'string' ? { scope: mutable.scope } : {}),
     ...(mutable.label !== undefined ? { label: mutable.label } : {}),
     ...(effectiveBeginRe !== undefined ? { beginRe: effectiveBeginRe } : {}),
-    ...(endPattern !== undefined ? { endRe: compileRe(endPattern, caseInsensitive) } : {}),
+    ...(beginPatternForUse !== undefined ? { beginPattern: beginPatternForUse } : {}),
+    ...(endPatternForUse !== undefined
+      ? { endRe: compileRe(endPatternForUse, caseInsensitive), endPattern: endPatternForUse }
+      : {}),
     ...(matchPattern !== undefined && mutable.match !== undefined
       ? { matchRe: compileRe(matchPattern, caseInsensitive) }
       : {}),
@@ -161,12 +251,35 @@ function compileMode(
       ? { illegalRe: compileRe(illegalPattern, caseInsensitive) }
       : {}),
     ...(keywords !== undefined ? { keywords } : {}),
+    ...(keywordPatternRe !== undefined ? { keywordPatternRe } : {}),
     ...(mutable.subLanguage !== undefined ? { subLanguage: mutable.subLanguage } : {}),
     ...(mutable.beginScope !== undefined ? { beginScope: mutable.beginScope } : {}),
     ...(mutable.endScope !== undefined ? { endScope: mutable.endScope } : {}),
   };
 
   return Object.freeze(compiled);
+}
+
+/**
+ * Compile the keyword-tokenizer regex for a mode. Mirrors upstream
+ * `keywordPatternRe = langRe(keywordPattern, true)` from
+ * lib/mode_compiler.js:336. The pattern comes from `keywords.$pattern` if
+ * present (object form), else from the legacy `mode.lexemes` field, else
+ * defaults to /\w+/. We compile with the global flag so the matcher can
+ * walk a buffer with `lastIndex`.
+ */
+function compileKeywordPatternRe(mode: Mode, caseInsensitive: boolean): RegExp {
+  let pattern: string | undefined;
+  if (typeof mode.keywords === 'object' && !Array.isArray(mode.keywords)) {
+    const obj = mode.keywords as { readonly $pattern?: RegexLike };
+    if (obj.$pattern !== undefined) pattern = regexSource(obj.$pattern);
+  }
+  if (pattern === undefined && mode.lexemes !== undefined) {
+    pattern = regexSource(mode.lexemes);
+  }
+  if (pattern === undefined || pattern === '') pattern = '\\w+';
+  const flags = caseInsensitive ? 'gmi' : 'gm';
+  return new RegExp(pattern, flags);
 }
 
 function pickPattern(p: RegexLike | readonly RegexLike[] | undefined): string | undefined {

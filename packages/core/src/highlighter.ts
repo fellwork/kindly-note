@@ -4,8 +4,8 @@
 
 import type { CompiledLanguage } from './compile.js';
 import { compileLanguage } from './compile.js';
-import type { EmitterFactory } from './emitter.js';
-import { LanguageNotFoundError } from './errors.js';
+import type { Emitter, EmitterFactory, TokenStream } from './emitter.js';
+import { IllegalSyntaxError, LanguageNotFoundError } from './errors.js';
 import { runMatcher } from './internal/matcher.js';
 import { defaultRecordingEmitter } from './internal/recording-emitter.js';
 import type { LanguageDefinition } from './language.js';
@@ -241,7 +241,31 @@ class HighlighterImpl implements Highlighter {
       language: handle.compiled.name,
     });
 
-    const r = runMatcher(handle.compiled, input.code, emitter);
+    // Sub-language recursion callback. Spec section 5.7. When a mode declares
+    // `subLanguage: 'foo'`, the matcher invokes this with the buffered text
+    // and 'foo'; we run the engine recursively with a fresh emitter, finalize
+    // it, and hand the resulting frozen TokenStream back to the parent
+    // emitter. The parent never sees a foreign emitter object.
+    const runSubLanguage = (
+      subCode: string,
+      subLangName: string,
+    ): { stream: TokenStream; language: string; relevance: number } | undefined => {
+      const subHandle = this.getLanguage(subLangName);
+      if (subHandle === undefined) return undefined;
+      const subEmitter = this.emitterFactory.create({
+        classPrefix: this.options.classPrefix,
+        language: subHandle.compiled.name,
+      });
+      const subResult = this.driveMatcher(subHandle.compiled, subCode, subEmitter, false);
+      subEmitter.finalize();
+      return {
+        stream: subEmitter.toTokenStream(),
+        language: subHandle.compiled.name,
+        relevance: subResult.relevance,
+      };
+    };
+
+    const r = this.driveMatcher(handle.compiled, input.code, emitter, input.ignoreIllegals, runSubLanguage);
     emitter.finalize();
 
     const value = emitter.render();
@@ -253,6 +277,42 @@ class HighlighterImpl implements Highlighter {
       code: input.code,
       _tokenStream: emitter.toTokenStream(),
     });
+  }
+
+  /**
+   * Run the matcher with illegal-rule handling. Wraps `runMatcher` to catch
+   * `IllegalSyntaxError` and convert it into `result.illegal: true` per spec
+   * section 2.2 (HighlightResult.illegal). When `errorMode === 'throw'` and
+   * `ignoreIllegals === false`, the error propagates unchanged.
+   */
+  private driveMatcher(
+    compiled: CompiledLanguage,
+    code: string,
+    emitter: Emitter<unknown>,
+    ignoreIllegals: boolean,
+    runSubLanguage?: (
+      code: string,
+      lang: string,
+    ) => { stream: TokenStream; language: string; relevance: number } | undefined,
+  ): { relevance: number; illegal: boolean } {
+    try {
+      return runMatcher(compiled, code, emitter, {
+        ignoreIllegals,
+        ...(runSubLanguage !== undefined ? { runSubLanguage } : {}),
+      });
+    } catch (err) {
+      if (err instanceof IllegalSyntaxError) {
+        if (this.options.errorMode === 'throw' && !ignoreIllegals) {
+          throw err;
+        }
+        // Convert to a non-throwing illegal-marked result. The emitter has
+        // already received whatever calls happened before the illegal point;
+        // we DO NOT clear them — the partial output is preserved and the
+        // result.illegal flag signals the truncation.
+        return { relevance: 0, illegal: true };
+      }
+      throw err;
+    }
   }
 
   private readonlyView(): HighlighterReadonly {
