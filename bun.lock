@@ -55,7 +55,7 @@
     },
     "packages/core": {
       "name": "@kindly-note/core",
-      "version": "0.1.0",
+      "version": "0.2.0",
       "devDependencies": {
         "rolldown": "1.0.0",
         "rolldown-plugin-dts": "0.16.0",
@@ -84,7 +84,7 @@
         "@kindly-note/emitters-html": "^0.1.0",
       },
       "devDependencies": {
-        "@kindly-note/core": "^0.1.0",
+        "@kindly-note/core": "^0.2.0",
         "@kindly-note/lang-json": "^0.1.0",
         "@kindly-note/lang-markdown": "^0.1.0",
         "rolldown": "1.0.0",
@@ -93,7 +93,7 @@
         "vitest": "^2.1.8",
       },
       "peerDependencies": {
-        "@kindly-note/core": "^0.1.0",
+        "@kindly-note/core": "^0.2.0",
       },
     },
     "packages/lang-helpers": {
@@ -241,7 +241,7 @@
         "@kindly-note/lang-markdown": "^0.1.0",
       },
       "devDependencies": {
-        "@kindly-note/core": "^0.1.0",
+        "@kindly-note/core": "^0.2.0",
         "@kindly-note/lang-javascript": "^0.1.0",
         "@kindly-note/lang-json": "^0.1.0",
         "@kindly-note/lang-typescript": "^0.1.0",
@@ -251,7 +251,7 @@
         "vitest": "^2.1.8",
       },
       "peerDependencies": {
-        "@kindly-note/core": "^0.1.0",
+        "@kindly-note/core": "^0.2.0",
       },
     },
     "packages/themes-default": {
@@ -841,6 +841,30 @@
     "wrap-ansi": ["wrap-ansi@9.0.2", "", { "dependencies": { "ansi-styles": "^6.2.1", "string-width": "^7.0.0", "strip-ansi": "^7.1.0" } }, "sha512-42AtmgqjV+X1VpdOfyTGOYRi0/zsoLqtXQckTmqTeybT+BDIbM/Guxo7x3pE2vtpr1ok6xRqM9OpBe+Jyoqyww=="],
 
     "yaml": ["yaml@2.8.4", "", { "bin": { "yaml": "bin.mjs" } }, "sha512-ml/JPOj9fOQK8RNnWojA67GbZ0ApXAUlN2UQclwv2eVgTgn7O9gg9o7paZWKMp4g0H3nTLtS9LVzhkpOFIKzog=="],
+
+    "@kindly-note/auto-detect/@kindly-note/core": ["@kindly-note/core@0.1.0", "", {}, "sha512-J19tBBuRR9r2j5nIrrO4x71IXQGGQLyEjftW4k7cz9sVrEO97eqOcFfJlKb6mIsIvz9CLjxwgTCuo/oqtBUDkQ=="],
+
+    "@kindly-note/browser/@kindly-note/core": ["@kindly-note/core@0.1.0", "", {}, "sha512-J19tBBuRR9r2j5nIrrO4x71IXQGGQLyEjftW4k7cz9sVrEO97eqOcFfJlKb6mIsIvz9CLjxwgTCuo/oqtBUDkQ=="],
+
+    "@kindly-note/emitters-html/@kindly-note/core": ["@kindly-note/core@0.1.0", "", {}, "sha512-J19tBBuRR9r2j5nIrrO4x71IXQGGQLyEjftW4k7cz9sVrEO97eqOcFfJlKb6mIsIvz9CLjxwgTCuo/oqtBUDkQ=="],
+
+    "@kindly-note/lang-helpers/@kindly-note/core": ["@kindly-note/core@0.1.0", "", {}, "sha512-J19tBBuRR9r2j5nIrrO4x71IXQGGQLyEjftW4k7cz9sVrEO97eqOcFfJlKb6mIsIvz9CLjxwgTCuo/oqtBUDkQ=="],
+
+    "@kindly-note/lang-javascript/@kindly-note/core": ["@kindly-note/core@0.1.0", "", {}, "sha512-J19tBBuRR9r2j5nIrrO4x71IXQGGQLyEjftW4k7cz9sVrEO97eqOcFfJlKb6mIsIvz9CLjxwgTCuo/oqtBUDkQ=="],
+
+    "@kindly-note/lang-json/@kindly-note/core": ["@kindly-note/core@0.1.0", "", {}, "sha512-J19tBBuRR9r2j5nIrrO4x71IXQGGQLyEjftW4k7cz9sVrEO97eqOcFfJlKb6mIsIvz9CLjxwgTCuo/oqtBUDkQ=="],
+
+    "@kindly-note/lang-markdown/@kindly-note/core": ["@kindly-note/core@0.1.0", "", {}, "sha512-J19tBBuRR9r2j5nIrrO4x71IXQGGQLyEjftW4k7cz9sVrEO97eqOcFfJlKb6mIsIvz9CLjxwgTCuo/oqtBUDkQ=="],
+
+    "@kindly-note/lang-pack-ecmascript/@kindly-note/core": ["@kindly-note/core@0.1.0", "", {}, "sha512-J19tBBuRR9r2j5nIrrO4x71IXQGGQLyEjftW4k7cz9sVrEO97eqOcFfJlKb6mIsIvz9CLjxwgTCuo/oqtBUDkQ=="],
+
+    "@kindly-note/lang-typescript/@kindly-note/core": ["@kindly-note/core@0.1.0", "", {}, "sha512-J19tBBuRR9r2j5nIrrO4x71IXQGGQLyEjftW4k7cz9sVrEO97eqOcFfJlKb6mIsIvz9CLjxwgTCuo/oqtBUDkQ=="],
+
+    "@kindly-note/legacy-plugin-adapter/@kindly-note/core": ["@kindly-note/core@0.1.0", "", {}, "sha512-J19tBBuRR9r2j5nIrrO4x71IXQGGQLyEjftW4k7cz9sVrEO97eqOcFfJlKb6mIsIvz9CLjxwgTCuo/oqtBUDkQ=="],
+
+    "@kindly-note/loader-dynamic-import/@kindly-note/core": ["@kindly-note/core@0.1.0", "", {}, "sha512-J19tBBuRR9r2j5nIrrO4x71IXQGGQLyEjftW4k7cz9sVrEO97eqOcFfJlKb6mIsIvz9CLjxwgTCuo/oqtBUDkQ=="],
+
+    "@kindly-note/loader-fetch/@kindly-note/core": ["@kindly-note/core@0.1.0", "", {}, "sha512-J19tBBuRR9r2j5nIrrO4x71IXQGGQLyEjftW4k7cz9sVrEO97eqOcFfJlKb6mIsIvz9CLjxwgTCuo/oqtBUDkQ=="],
 
     "@manypkg/find-root/fs-extra": ["fs-extra@8.1.0", "", { "dependencies": { "graceful-fs": "^4.2.0", "jsonfile": "^4.0.0", "universalify": "^0.1.0" } }, "sha512-yhlQgA6mnOJUKOsRUFsgJdQCvkKhcz8tlZG5HBQfReYZy46OwLcY+Zia0mtdHsOo9y/hP+CxMN0TU9QxoOtG4g=="],
 

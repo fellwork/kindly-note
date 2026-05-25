@@ -1,6 +1,6 @@
 # @kindly-note/render-markdown
 
-## 1.0.0
+## 0.1.0
 
 ### Minor Changes
 
@@ -24,7 +24,5 @@
 ### Patch Changes
 
 - Updated dependencies [2d654b6]
-- Updated dependencies [2d654b6]
   - @kindly-note/core@0.2.0
-  - @kindly-note/emitters-markdown@1.0.0
-  - @kindly-note/lang-markdown@0.1.1
+  - @kindly-note/emitters-markdown@0.1.0

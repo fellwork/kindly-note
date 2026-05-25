@@ -1,6 +1,6 @@
 {
   "name": "@kindly-note/render-markdown",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "One-call markdown → safe HTML for kindly-note. renderMarkdown(src, opts) composes @kindly-note/lang-markdown (CommonMark tokeniser) + @kindly-note/emitters-markdown (semantic-HTML emitter with security-first defaults) + a sensible Highlighter, with optional code-fence language packs. CommonMark only (GFM lives in lang-markdown-gfm).",
   "license": "MIT",
   "type": "module",
@@ -24,14 +24,14 @@
     "@kindly-note/core": "^0.2.0"
   },
   "dependencies": {
-    "@kindly-note/emitters-markdown": "^1.0.0",
-    "@kindly-note/lang-markdown": "^0.1.1"
+    "@kindly-note/emitters-markdown": "^0.1.0",
+    "@kindly-note/lang-markdown": "^0.1.0"
   },
   "devDependencies": {
     "@kindly-note/core": "^0.2.0",
-    "@kindly-note/lang-json": "^0.1.1",
-    "@kindly-note/lang-javascript": "^0.1.1",
-    "@kindly-note/lang-typescript": "^0.1.1",
+    "@kindly-note/lang-json": "^0.1.0",
+    "@kindly-note/lang-javascript": "^0.1.0",
+    "@kindly-note/lang-typescript": "^0.1.0",
     "rolldown": "1.0.0",
     "rolldown-plugin-dts": "0.16.0",
     "typescript": "^5.7.2",

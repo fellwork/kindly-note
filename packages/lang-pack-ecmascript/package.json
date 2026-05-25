@@ -1,6 +1,6 @@
 {
   "name": "@kindly-note/lang-pack-ecmascript",
-  "version": "0.1.1",
+  "version": "0.1.0",
   "description": "Shared mode helpers and constant lists for the ECMAScript family (JS/TS/CoffeeScript/LiveScript/JSON). Pure data + factory functions; deep-frozen.",
   "license": "MIT",
   "type": "module",
@@ -21,8 +21,8 @@
     "typecheck": "tsc -b"
   },
   "dependencies": {
-    "@kindly-note/core": "^0.2.0",
-    "@kindly-note/lang-helpers": "^0.1.1"
+    "@kindly-note/core": "^0.1.0",
+    "@kindly-note/lang-helpers": "^0.1.0"
   },
   "devDependencies": {
     "rolldown": "1.0.0",

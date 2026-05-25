@@ -1,6 +1,6 @@
 {
   "name": "@kindly-note/lang-json",
-  "version": "0.1.1",
+  "version": "0.1.0",
   "description": "JSON language definition for kindly-note. Aliases: json, jsonc, json5. Default-exports a deep-frozen LanguageDefinition.",
   "license": "MIT",
   "type": "module",
@@ -21,12 +21,12 @@
     "typecheck": "tsc -b"
   },
   "dependencies": {
-    "@kindly-note/core": "^0.2.0",
-    "@kindly-note/lang-helpers": "^0.1.1",
-    "@kindly-note/lang-pack-ecmascript": "^0.1.1"
+    "@kindly-note/core": "^0.1.0",
+    "@kindly-note/lang-helpers": "^0.1.0",
+    "@kindly-note/lang-pack-ecmascript": "^0.1.0"
   },
   "devDependencies": {
-    "@kindly-note/emitters-html": "^1.0.0",
+    "@kindly-note/emitters-html": "^0.1.0",
     "rolldown": "1.0.0",
     "rolldown-plugin-dts": "0.16.0",
     "typescript": "^5.7.2",

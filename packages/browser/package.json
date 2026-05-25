@@ -1,6 +1,6 @@
 {
   "name": "@kindly-note/browser",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "DOM bindings for kindly-note. Three exports: highlightAll, highlightElement, attachToDOM. Tree-shaken away on Workers/Edge. spec §1.2.",
   "license": "MIT",
   "type": "module",
@@ -21,8 +21,8 @@
     "typecheck": "tsc -b"
   },
   "peerDependencies": {
-    "@kindly-note/core": "^0.2.0",
-    "@kindly-note/auto-detect": "^0.1.1"
+    "@kindly-note/core": "^0.1.0",
+    "@kindly-note/auto-detect": "^0.1.0"
   },
   "peerDependenciesMeta": {
     "@kindly-note/auto-detect": {
@@ -30,10 +30,10 @@
     }
   },
   "devDependencies": {
-    "@kindly-note/core": "^0.2.0",
-    "@kindly-note/auto-detect": "^0.1.1",
-    "@kindly-note/emitters-html": "^1.0.0",
-    "@kindly-note/lang-json": "^0.1.1",
+    "@kindly-note/core": "^0.1.0",
+    "@kindly-note/auto-detect": "^0.1.0",
+    "@kindly-note/emitters-html": "^0.1.0",
+    "@kindly-note/lang-json": "^0.1.0",
     "happy-dom": "^15.11.7",
     "rolldown": "1.0.0",
     "rolldown-plugin-dts": "0.16.0",

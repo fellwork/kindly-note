@@ -1,6 +1,6 @@
 {
   "name": "@kindly-note/emitters-markdown",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "Semantic-HTML emitter for kindly-note's markdown token stream. Produces <h1>…<h6>, <p>, <strong>, <em>, <a href>, <code>/<pre>, <ul>/<ol>/<li>, <blockquote> with SECURITY-FIRST defaults: raw HTML is escaped, dangerous URL schemes (javascript:, data:, …) are neutralised, on* handlers can never be emitted, and Unicode bidi controls are normalised. CommonMark only (GFM lives in lang-markdown-gfm).",
   "license": "MIT",
   "type": "module",
@@ -24,12 +24,12 @@
     "@kindly-note/core": "^0.2.0"
   },
   "dependencies": {
-    "@kindly-note/emitters-html": "^1.0.0"
+    "@kindly-note/emitters-html": "^0.1.0"
   },
   "devDependencies": {
     "@kindly-note/core": "^0.2.0",
-    "@kindly-note/lang-json": "^0.1.1",
-    "@kindly-note/lang-markdown": "^0.1.1",
+    "@kindly-note/lang-json": "^0.1.0",
+    "@kindly-note/lang-markdown": "^0.1.0",
     "rolldown": "1.0.0",
     "rolldown-plugin-dts": "0.16.0",
     "typescript": "^5.7.2",
