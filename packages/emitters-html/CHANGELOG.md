@@ -1,5 +1,12 @@
 # @kindly-note/emitters-html
 
+## 1.0.0
+
+### Patch Changes
+
+- Updated dependencies [2d654b6]
+  - @kindly-note/core@0.2.0
+
 ## 0.1.0
 
 ### Minor Changes

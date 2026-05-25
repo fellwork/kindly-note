@@ -1,6 +1,6 @@
 {
   "name": "@kindly-note/emitters-html",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Default HTML-string emitter for kindly-note. Tiered scope-to-class mapping with `kn-` default prefix.",
   "license": "MIT",
   "type": "module",
@@ -21,10 +21,10 @@
     "typecheck": "tsc -b"
   },
   "peerDependencies": {
-    "@kindly-note/core": "^0.1.0"
+    "@kindly-note/core": "^0.2.0"
   },
   "devDependencies": {
-    "@kindly-note/core": "^0.1.0",
+    "@kindly-note/core": "^0.2.0",
     "rolldown": "1.0.0",
     "rolldown-plugin-dts": "0.16.0",
     "typescript": "^5.7.2",

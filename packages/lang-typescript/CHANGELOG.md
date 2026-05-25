@@ -1,5 +1,15 @@
 # @kindly-note/lang-typescript
 
+## 0.1.1
+
+### Patch Changes
+
+- Updated dependencies [2d654b6]
+  - @kindly-note/core@0.2.0
+  - @kindly-note/lang-helpers@0.1.1
+  - @kindly-note/lang-javascript@0.1.1
+  - @kindly-note/lang-pack-ecmascript@0.1.1
+
 ## 0.1.0
 
 ### Minor Changes

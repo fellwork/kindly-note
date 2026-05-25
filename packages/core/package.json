@@ -1,6 +1,6 @@
 {
   "name": "@kindly-note/core",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Engine, compiler, parser loop, registry, plugin pipeline, and types for kindly-note. Zero language data, zero DOM, zero Node built-ins.",
   "license": "MIT",
   "type": "module",
