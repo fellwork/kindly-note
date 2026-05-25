@@ -21,14 +21,14 @@
     "typecheck": "tsc -b"
   },
   "peerDependencies": {
-    "@kindly-note/core": "^0.1.0"
+    "@kindly-note/core": "^0.2.0"
   },
   "dependencies": {
     "@kindly-note/emitters-markdown": "^0.1.0",
     "@kindly-note/lang-markdown": "^0.1.0"
   },
   "devDependencies": {
-    "@kindly-note/core": "^0.1.0",
+    "@kindly-note/core": "^0.2.0",
     "@kindly-note/lang-json": "^0.1.0",
     "@kindly-note/lang-javascript": "^0.1.0",
     "@kindly-note/lang-typescript": "^0.1.0",
