@@ -257,10 +257,27 @@ export function runMatcher(
     if (i < lexeme.length) emitter.addText(lexeme.slice(i));
   };
 
+  /**
+   * Open a scope on the emitter, routing through the optional attribute-aware
+   * path when BOTH (a) the mode carries a static `attrs` payload and (b) the
+   * emitter implements `startScopeWithAttrs`. Otherwise fall back to the plain
+   * `startScope`. spec §13.3a (core 0.2.0). This keeps existing emitters
+   * (emitters-html, recording) — which do not implement the optional method —
+   * working unchanged, and lets attribute-aware emitters (emitters-markdown)
+   * receive the payload.
+   */
+  const openScope = (scope: string, attrs: Readonly<Record<string, string>> | undefined): void => {
+    if (attrs !== undefined && typeof emitter.startScopeWithAttrs === 'function') {
+      emitter.startScopeWithAttrs(scope, attrs);
+    } else {
+      emitter.startScope(scope);
+    }
+  };
+
   /** Open a new mode (push onto stack). Mirrors upstream `startNewMode`. */
   const startNewMode = (child: CompiledMode, lexeme: string): Frame => {
     if (typeof child.scope === 'string') {
-      emitter.startScope(child.scope);
+      openScope(child.scope, child.attrs);
     }
     const frame: Frame = { mode: child };
     if (child.endSameAsBegin) {
@@ -364,9 +381,10 @@ export function runMatcher(
         // Drain the pre-lexeme buffer before emitting structured spans.
         processBuffer();
         // Open the mode-level scope (if string) BEFORE the per-group emit so
-        // the per-group spans nest inside the mode's own wrapper.
+        // the per-group spans nest inside the mode's own wrapper. spec §13.3a:
+        // route through the attribute-aware path when applicable.
         if (typeof child.scope === 'string') {
-          emitter.startScope(child.scope);
+          openScope(child.scope, child.attrs);
         }
         emitMultiCaptureScopes(
           child.beginScope as import('../language.js').ScopeMap,

@@ -9,6 +9,8 @@
     { "path": "./packages/lang-javascript" },
     { "path": "./packages/lang-typescript" },
     { "path": "./packages/lang-markdown" },
+    { "path": "./packages/emitters-markdown" },
+    { "path": "./packages/render-markdown" },
     { "path": "./packages/themes-default" },
     { "path": "./packages/legacy-plugin-adapter" },
     { "path": "./packages/auto-detect" },

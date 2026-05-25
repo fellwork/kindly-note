@@ -76,6 +76,13 @@ export interface CompiledMode {
   readonly endSameAsBegin: boolean;
   readonly beginScope?: string | ScopeMap;
   readonly endScope?: string | ScopeMap;
+  /**
+   * Static attribute payload forwarded from the source Mode. spec §13.3a.
+   * When present (and `scope` is a string), the matcher opens the scope via
+   * `Emitter.startScopeWithAttrs` when the emitter implements it, else falls
+   * back to `Emitter.startScope`. Added in core 0.2.0 (additive, optional).
+   */
+  readonly attrs?: Readonly<Record<string, string>>;
   /** Source-string form of the begin pattern (for capture in parent union). */
   readonly beginPattern?: string;
   /** Source-string form of the end pattern (for capture in parent union). */
@@ -318,6 +325,8 @@ function compileMode(
   if (mutable.subLanguage !== undefined) compiled.subLanguage = mutable.subLanguage;
   if (derivedBeginScope !== undefined) compiled.beginScope = derivedBeginScope;
   if (mutable.endScope !== undefined) compiled.endScope = mutable.endScope;
+  // spec §13.3a: forward the static attribute payload (core 0.2.0, additive).
+  if (mutable.attrs !== undefined) compiled.attrs = mutable.attrs;
 
   // Memoise BEFORE recursing into children so cycles see the placeholder.
   memo.set(mode, compiled);
