@@ -29,13 +29,33 @@ export interface EmitterOptions {
 /**
  * The six-method emitter contract. spec section 5.1.
  *
- * Engine call order: zero-or-more (startScope|endScope|addText|addSubLanguage),
- * then exactly one finalize(), then exactly one render(). The engine may also
- * call toTokenStream() *before* render() when this emitter was created for a
- * sub-language and the parent needs its tokens.
+ * Engine call order: zero-or-more (startScope|startScopeWithAttrs|endScope|
+ * addText|addSubLanguage), then exactly one finalize(), then exactly one
+ * render(). The engine may also call toTokenStream() *before* render() when
+ * this emitter was created for a sub-language and the parent needs its tokens.
  */
 export interface Emitter<TOutput> {
   startScope(scope: string): void;
+  /**
+   * Open a scope that carries attributes. spec section 13.3a (decision (a)).
+   *
+   * OPTIONAL — added in core 0.2.0 as a backward-compatible minor. Emitters
+   * that produce attribute-bearing markup (`@kindly-note/emitters-markdown`'s
+   * `<a href>`, `<h1 id>`, `<img src alt>`; `@kindly-note/emitters-hast`)
+   * implement this. Emitters that only produce `<span class>` output
+   * (`@kindly-note/emitters-html`, the recording emitter) MAY omit it — the
+   * engine and any attribute-aware language definition call this method only
+   * when it exists, otherwise they fall back to {@link Emitter.startScope}.
+   *
+   * The `attrs` payload is a flat, already-decided `Record<string, string>`.
+   * It is the producer's responsibility (matcher / language definition) to
+   * decide which attributes to carry; it is the emitter's responsibility to
+   * decide how (or whether) to serialize them safely.
+   *
+   * Each `startScopeWithAttrs` MUST be balanced by exactly one
+   * {@link Emitter.endScope}, identical to {@link Emitter.startScope}.
+   */
+  startScopeWithAttrs?(scope: string, attrs: Readonly<Record<string, string>>): void;
   endScope(): void;
   addText(text: string): void;
   addSubLanguage(stream: TokenStream, language: string): void;

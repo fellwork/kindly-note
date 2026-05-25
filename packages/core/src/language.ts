@@ -54,6 +54,20 @@ export interface Mode {
   readonly scope?: string | ScopeMap;
   readonly className?: string; // deprecated alias for `scope`
 
+  /**
+   * Optional static attribute payload carried by this mode. spec §13.3a
+   * (decision (a)). When present, the matcher opens this mode's scope via
+   * `Emitter.startScopeWithAttrs(scope, attrs)` if the emitter implements that
+   * optional method, otherwise it falls back to `Emitter.startScope(scope)`.
+   *
+   * Added in core 0.2.0 (backward-compatible minor). Only meaningful when
+   * `scope` is a single string (the begin/end pair the attrs attach to). Modes
+   * that omit `attrs` are unaffected — the matcher takes the plain
+   * `startScope` path exactly as before. Semantic-HTML emitters
+   * (`@kindly-note/emitters-markdown`) are the primary consumers.
+   */
+  readonly attrs?: Readonly<Record<string, string>>;
+
   readonly begin?: RegexLike | readonly RegexLike[];
   readonly match?: RegexLike | readonly RegexLike[];
   readonly end?: RegexLike | readonly RegexLike[];
