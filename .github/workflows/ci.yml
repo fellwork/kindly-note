@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [main]
 
+permissions:
+  contents: read
+
 # Cancel in-flight runs on the same branch when new commits land.
 concurrency:
   group: ci-${{ github.ref }}
